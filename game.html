@@ -29,15 +29,21 @@
 
     <script>
       var initialSignal = new Rx.Subject();
+
       var updateSignal = new Rx.Observable.timer(2000, 2000);
-      var confirmSignal = new Rx.Subject();
-      var commitSignal = confirmSignal.debounce(100);
+      var updateDoneSignal = new Rx.Subject();
+
+      var resolveSignal = updateDoneSignal.debounce(100);
+      var resolveDoneSignal = new Rx.Subject();
+
+      var commitSignal = resolveDoneSignal.debounce(100);
 
       function TestElement(id, full) {
         this.id = id;
         this.full = full;
         initialSignal.subscribe(this.setClass.bind(this));
         updateSignal.subscribe(this.moveNext.bind(this));
+        resolveSignal.subscribe(this.resolve.bind(this));
         commitSignal.subscribe(this.commit.bind(this));
       }
 
@@ -48,26 +54,37 @@
       TestElement.prototype.moveNext = function() {
         if (this.full) {
           this.next.push(this.full)
-          if (!this.updateState) {
-            this.updateState = {
-              full: false
-            }
-          }
+          this.setNextStateDefault("full", false);
         }
-        confirmSignal.onNext({});
+        updateDoneSignal.onNext({});
       }
 
-      TestElement.prototype.push = function(item) {
-        this.updateState = {
-          full: item
+      TestElement.prototype.setNextState = function(key, value) {
+        this.nextState = this.nextState || {}
+        this.nextState[key] = value
+      }
+
+      TestElement.prototype.setNextStateDefault = function(key, value) {
+        this.nextState = this.nextState || {}
+        if (this.nextState[key] === undefined) {
+          this.nextState[key] = value
         }
+      }
+
+      TestElement.prototype.push = function(item, sender) {
+        this.setNextState("full", item)
+        this.setNextState("sender", sender)
+      }
+
+      TestElement.prototype.resolve = function() {
+        resolveDoneSignal.onNext({});
       }
 
       TestElement.prototype.commit = function() {
-        if (this.updateState) {
-          this.full = this.updateState.full
-          this.updateState = undefined
+        for (key in this.nextState) {
+          this[key] = this.nextState[key]
         }
+        this.nextState = undefined
         this.setClass();
       }
 
