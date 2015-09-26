@@ -5,6 +5,9 @@
     <title> Box Distribution Designer </title>
     <script src="node_modules/rx/dist/rx.lite.js"></script>
     <style>
+      div {
+        padding-top: 10px;
+      }
       div.a {
         background: red;
         color: white;
@@ -18,7 +21,8 @@
       }
 
       div.blocked {
-        border-top: thin solid black;
+        border-top: 10px solid black;
+        padding-top: 0;
       }
     </style>
   </head>
@@ -47,7 +51,7 @@
         this.full = full;
         this.nextState = {};
         initialSignal.subscribe(this.setClass.bind(this));
-        updateSignal.subscribe(this.moveNext.bind(this));
+        updateSignal.subscribe(this.update.bind(this));
         resolveSignal.subscribe(this.resolve.bind(this));
         commitSignal.subscribe(this.commit.bind(this));
       }
@@ -56,12 +60,16 @@
         document.getElementById(this.id).setAttribute("class", this.full || "")
       }
 
+      TestElement.prototype.update = function() {
+        this.moveNext();
+        updateDoneSignal.onNext({});
+      }
+
       TestElement.prototype.moveNext = function() {
         if (this.full) {
           this.next.push(this.full, this)
           this.nextState.full = false;
         }
-        updateDoneSignal.onNext({});
       }
 
       TestElement.prototype.push = function(item, sender) {
@@ -103,9 +111,9 @@
       OccasionalElement.prototype = Object.create(TestElement.prototype)
       OccasionalElement.prototype.constructor = OccasionalElement
 
-      OccasionalElement.prototype.moveNext = function() {
+      OccasionalElement.prototype.update = function() {
         this.nextState.current = (this.current + 1) % this.mod;
-        TestElement.prototype.moveNext.call(this);
+        TestElement.prototype.update.call(this);
       }
 
       OccasionalElement.prototype.resolve = function() {
@@ -116,6 +124,7 @@
         }
 
         resolveDoneSignal.onNext({});
+        TestElement.prototype.resolve.call(this);
       }
 
       OccasionalElement.prototype.commit = function() {
