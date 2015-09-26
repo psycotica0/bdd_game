@@ -16,6 +16,10 @@
       div.c {
         background: yellow;
       }
+
+      div.blocked {
+        border-top: thin solid black;
+      }
     </style>
   </head>
   <body>
@@ -38,9 +42,10 @@
 
       var commitSignal = resolveDoneSignal.debounce(100);
 
-      function TestElement(id, full) {
+      TestElement = function (id, full) {
         this.id = id;
         this.full = full;
+        this.nextState = {};
         initialSignal.subscribe(this.setClass.bind(this));
         updateSignal.subscribe(this.moveNext.bind(this));
         resolveSignal.subscribe(this.resolve.bind(this));
@@ -53,27 +58,14 @@
 
       TestElement.prototype.moveNext = function() {
         if (this.full) {
-          this.next.push(this.full)
-          this.setNextStateDefault("full", false);
+          this.next.push(this.full, this)
+          this.nextState.full = false;
         }
         updateDoneSignal.onNext({});
       }
 
-      TestElement.prototype.setNextState = function(key, value) {
-        this.nextState = this.nextState || {}
-        this.nextState[key] = value
-      }
-
-      TestElement.prototype.setNextStateDefault = function(key, value) {
-        this.nextState = this.nextState || {}
-        if (this.nextState[key] === undefined) {
-          this.nextState[key] = value
-        }
-      }
-
       TestElement.prototype.push = function(item, sender) {
-        this.setNextState("full", item)
-        this.setNextState("sender", sender)
+        this.nextState.inbound = {item: item, sender: sender};
       }
 
       TestElement.prototype.resolve = function() {
@@ -81,11 +73,64 @@
       }
 
       TestElement.prototype.commit = function() {
-        for (key in this.nextState) {
-          this[key] = this.nextState[key]
+        if (this.nextState.hasOwnProperty("full")) {
+          this.full = this.nextStateFull
         }
-        this.nextState = undefined
+        if (this.nextState.hasOwnProperty("inbound")) {
+          this.full = this.nextState.inbound.item
+        }
+
+        this.nextState = {}
         this.setClass();
+      }
+
+      TestElement.prototype.rollBack = function() {
+        // Keep what we have
+        delete this.nextState.full
+        // Push back upstream
+        if (this.nextState.hasOwnProperty("inbound")) {
+          this.nextState.inbound.sender.rollBack();
+          delete this.nextState.inbound;
+        }
+      }
+
+      OccasionalElement = function (id, full, number) {
+        this.mod = number
+        this.current = 0
+        TestElement.call(this, id, full);
+      }
+
+      OccasionalElement.prototype = Object.create(TestElement.prototype)
+      OccasionalElement.prototype.constructor = OccasionalElement
+
+      OccasionalElement.prototype.moveNext = function() {
+        this.nextState.current = (this.current + 1) % this.mod;
+        TestElement.prototype.moveNext.call(this);
+      }
+
+      OccasionalElement.prototype.resolve = function() {
+        if (this.nextState.current != 0 && this.nextState.hasOwnProperty("inbound")) {
+          // We're Done For!!
+          this.nextState.inbound.sender.rollBack();
+          delete this.nextState.inbound;
+        }
+
+        resolveDoneSignal.onNext({});
+      }
+
+      OccasionalElement.prototype.commit = function() {
+        if (this.nextState.hasOwnProperty("current")) {
+          this.current = this.nextState.current;
+        }
+        TestElement.prototype.commit.call(this);
+      }
+
+      OccasionalElement.prototype.setClass = function() {
+        var classes = []
+        if (this.full) classes.push(this.full);
+        if (this.current != 0) classes.push("blocked");
+
+        document.getElementById(this.id).setAttribute("class", classes.join(" "))
       }
 
       var i1 = new TestElement("1", "a");
@@ -95,7 +140,7 @@
       i2.next = i3
       var i4 = new TestElement("4", "c");
       i3.next = i4
-      var i5 = new TestElement("5", false);
+      var i5 = new OccasionalElement("5", false, 3);
       i4.next = i5
       var i6 = new TestElement("6", false);
       i5.next = i6
