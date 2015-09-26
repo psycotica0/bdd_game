@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf8" />
+    <title> Box Distribution Designer </title>
+    <script src="node_modules/rx/dist/rx.lite.js"></script>
+    <style>
+      div.occupied { 
+        background: red;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="1"> One </div>
+    <div id="2"> Two </div>
+    <div id="3"> Three </div>
+    <div id="4"> Four </div>
+    <div id="5"> Five </div>
+    <div id="6"> Six </div>
+    <div id="7"> Seven </div>
+
+    <script>
+      var initialSignal = new Rx.Subject();
+      var nextSignal = new Rx.Observable.timer(2000, 2000);
+      var confirmSignal = new Rx.Subject();
+      var commitSignal = confirmSignal.debounce(100);
+
+      function TestElement(id, full) {
+        this.id = id;
+        this.full = full;
+        initialSignal.subscribe(this.setClass.bind(this));
+        nextSignal.subscribe(this.moveNext.bind(this));
+        commitSignal.subscribe(this.commit.bind(this));
+      }
+
+      TestElement.prototype.setClass = function() {
+        list = document.getElementById(this.id).classList;
+        if (this.full)
+          list.add("occupied")
+        else
+          list.remove("occupied")
+      }
+
+      TestElement.prototype.moveNext = function() {
+        if (this.full) {
+          this.next.push()
+          if (!this.nextState) {
+            this.nextState = {
+              full: false
+            }
+          }
+        }
+        confirmSignal.onNext({});
+      }
+
+      TestElement.prototype.push = function() {
+        this.nextState = {
+          full: true
+        }
+      }
+
+      TestElement.prototype.commit = function() {
+        if (this.nextState) {
+          this.full = this.nextState.full
+          this.nextState = undefined
+        }
+        this.setClass();
+      }
+
+      var i1 = new TestElement("1", true);
+      var i2 = new TestElement("2", true);
+      i1.next = i2
+      var i3 = new TestElement("3", false);
+      i2.next = i3
+      var i4 = new TestElement("4", true);
+      i3.next = i4
+      var i5 = new TestElement("5", false);
+      i4.next = i5
+      var i6 = new TestElement("6", false);
+      i5.next = i6
+      var i7 = new TestElement("7", false);
+      i6.next = i7
+      i7.next = i1
+
+      initialSignal.onNext({})
+      // initial state
+      /*
+      document.getElementById("one").classList.add("occupied");
+      document.getElementById("two").classList.add("occupied");
+      document.getElementById("four").classList.add("occupied");
+      */
+    </script>
+  </body>
+</html>

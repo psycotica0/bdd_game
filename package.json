@@ -12,6 +12,7 @@
     "jasmine": "~2.3.2",
     "requirejs": "~2.1.20",
     "jasmine-node": "~1.14.5",
-    "lodash": "~3.10.1"
+    "lodash": "~3.10.1",
+    "rx": "~4.0.0"
   }
 }
