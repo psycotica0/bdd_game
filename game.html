@@ -5,8 +5,16 @@
     <title> Box Distribution Designer </title>
     <script src="node_modules/rx/dist/rx.lite.js"></script>
     <style>
-      div.occupied { 
+      div.a {
         background: red;
+        color: white;
+      }
+      div.b {
+        background: blue;
+        color: white;
+      }
+      div.c {
+        background: yellow;
       }
     </style>
   </head>
@@ -21,7 +29,7 @@
 
     <script>
       var initialSignal = new Rx.Subject();
-      var nextSignal = new Rx.Observable.timer(2000, 2000);
+      var updateSignal = new Rx.Observable.timer(2000, 2000);
       var confirmSignal = new Rx.Subject();
       var commitSignal = confirmSignal.debounce(100);
 
@@ -29,23 +37,19 @@
         this.id = id;
         this.full = full;
         initialSignal.subscribe(this.setClass.bind(this));
-        nextSignal.subscribe(this.moveNext.bind(this));
+        updateSignal.subscribe(this.moveNext.bind(this));
         commitSignal.subscribe(this.commit.bind(this));
       }
 
       TestElement.prototype.setClass = function() {
-        list = document.getElementById(this.id).classList;
-        if (this.full)
-          list.add("occupied")
-        else
-          list.remove("occupied")
+        document.getElementById(this.id).setAttribute("class", this.full || "")
       }
 
       TestElement.prototype.moveNext = function() {
         if (this.full) {
-          this.next.push()
-          if (!this.nextState) {
-            this.nextState = {
+          this.next.push(this.full)
+          if (!this.updateState) {
+            this.updateState = {
               full: false
             }
           }
@@ -53,26 +57,26 @@
         confirmSignal.onNext({});
       }
 
-      TestElement.prototype.push = function() {
-        this.nextState = {
-          full: true
+      TestElement.prototype.push = function(item) {
+        this.updateState = {
+          full: item
         }
       }
 
       TestElement.prototype.commit = function() {
-        if (this.nextState) {
-          this.full = this.nextState.full
-          this.nextState = undefined
+        if (this.updateState) {
+          this.full = this.updateState.full
+          this.updateState = undefined
         }
         this.setClass();
       }
 
-      var i1 = new TestElement("1", true);
-      var i2 = new TestElement("2", true);
+      var i1 = new TestElement("1", "a");
+      var i2 = new TestElement("2", "b");
       i1.next = i2
       var i3 = new TestElement("3", false);
       i2.next = i3
-      var i4 = new TestElement("4", true);
+      var i4 = new TestElement("4", "c");
       i3.next = i4
       var i5 = new TestElement("5", false);
       i4.next = i5
