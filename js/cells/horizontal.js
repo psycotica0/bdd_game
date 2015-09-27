@@ -28,14 +28,26 @@ define(["cells/empty"], function(EmptyCell) {
     this.signals.resolveDone.onNext();
   }
 
-  var rollback = function() {
+  HorizontalCell.prototype.rollbackLeft = function() {
+    if (this.nextState.hasOwnProperty("inboundRight")) {
+      this.nextState.inboundRight.sender.rollbackLeft();
+      delete this.nextState.inboundRight;
+    }
     delete this.nextState.contents;
-  };
+  }
 
-  HorizontalCell.prototype.rollbackLeft = rollback;
-  HorizontalCell.prototype.rollbackRight = rollback;
-  HorizontalCell.prototype.rollbackTop = rollback;
-  HorizontalCell.prototype.rollbackBottom = rollback;
+  HorizontalCell.prototype.rollbackRight = function() {
+    if (this.nextState.hasOwnProperty("inboundLeft")) {
+      this.nextState.inboundLeft.sender.rollbackRight();
+      delete this.nextState.inboundLeft;
+    }
+    delete this.nextState.contents;
+  }
+
+  HorizontalCell.prototype.rollbackTop =
+  HorizontalCell.prototype.rollbackBottom = function() {
+    this.signals.error.onNext();
+  }
 
   HorizontalCell.prototype.commit = function() {
     if (this.nextState.hasOwnProperty("contents")) {
