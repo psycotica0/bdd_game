@@ -13,9 +13,19 @@
     </script>
     <script src="node_modules/requirejs/require.js" data-main="game"></script>
     <style>
-      svg rect {
+      svg rect.track {
         fill: yellow;
         stroke: black;
+      }
+
+      svg rect.box {
+        fill: red;
+        stroke: black;
+        visibility: hidden;
+      }
+
+      svg.full rect.box {
+        visibility: visible;
       }
 
       svg rect.full {

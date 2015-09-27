@@ -44,5 +44,8 @@ define(function() {
     this.nextState.inboundRight = {item: item, sender: sender}
   }
 
+  EmptyCell.prototype.render = function(root, svg, size) {
+  }
+
   return EmptyCell;
 });

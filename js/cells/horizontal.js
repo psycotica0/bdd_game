@@ -88,5 +88,10 @@ define(["cells/empty"], function(EmptyCell) {
     }
   }
 
+  HorizontalCell.prototype.render = function(root, svg, size) {
+    root.appendChild(svg("rect", {x: 0, y: size / 4, width: size, height: size / 2, class: "track"}));
+    root.appendChild(svg("rect", {x: size / 4, y: 0, width: size / 2, height: size * 3 / 5, class: "box"}));
+  }
+
   return HorizontalCell;
 });

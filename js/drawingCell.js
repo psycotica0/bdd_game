@@ -15,7 +15,9 @@ define(function() {
     this.x = x
     this.y = y
     this.backingCell = backingCell;
-    this.node = svgElem("rect", {x: x * size, y: y * size, width: size, height: size});
+
+    this.node = svgElem("svg", {x: x * size, y: y * size, width: size, height: size});
+    this.backingCell.render(this.node, svgElem, size);
     dest.appendChild(this.node);
 
     this.backingCell.setClass = this.setClass.bind(this);
