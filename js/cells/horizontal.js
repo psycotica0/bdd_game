@@ -83,6 +83,9 @@ define(["cells/empty"], function(EmptyCell) {
     }
 
     EmptyCell.prototype.commit.call(this);
+    if (this.setClass) {
+      this.setClass(this.contents ? "full" : "");
+    }
   }
 
   return HorizontalCell;

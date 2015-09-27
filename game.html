@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf8" />
+    <title> Box Distribution Designer </title>
+    <script>
+      var require = {
+        baseUrl: "js",
+        paths: {
+          rx: "../node_modules/rx/dist/rx.lite"
+        }
+      }
+    </script>
+    <script src="node_modules/requirejs/require.js" data-main="game"></script>
+    <style>
+      svg rect {
+        fill: yellow;
+        stroke: black;
+      }
+
+      svg rect.full {
+        fill: blue;
+      }
+      #errors {
+        color: red;
+      }
+    </style>
+  </head>
+  <body>
+    <span id="errors"></span>
+    <svg id="grid"></svg>
+  </body>
+</html>

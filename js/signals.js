@@ -15,6 +15,7 @@ define(["rx"], function(Rx) {
     updateDone: updateDoneSignal,
     resolve: resolveSignal,
     resolveDone: resolveDoneSignal,
-    commit: commitSignal
+    commit: commitSignal,
+    error: new Rx.Subject(),
   }
 });
