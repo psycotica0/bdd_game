@@ -2,9 +2,10 @@ requirejs(["rx", "signals", "cells/horizontal", "cells/empty", "drawingCell"], f
   var svg = document.getElementById("grid");
   var last;
 
-  new DrawingCell(0, 0, svg, new EmptyCell(signals), signals);
+  var first = new DrawingCell(0, 0, svg, new HorizontalCell(signals), signals);
+  new DrawingCell(1, 0, svg, new EmptyCell(signals), signals);
 
-  for (var x = 1; x < 5; x++) {
+  for (var x = 2; x < 6; x++) {
     last = new DrawingCell(x, 0, svg, new HorizontalCell(signals), signals);
   }
 
@@ -19,5 +20,6 @@ requirejs(["rx", "signals", "cells/horizontal", "cells/empty", "drawingCell"], f
   signals.initial.onNext();
 
   last.backingCell.pushRight("a", undefined);
+  first.backingCell.pushLeft("b", undefined);
 
 });
