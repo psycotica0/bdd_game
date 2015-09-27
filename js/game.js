@@ -14,5 +14,5 @@ requirejs(["rx", "signals", "testElement", "occasionalElement"], function(Rx, Si
   i6.next = i7
   i7.next = i1
 
-  Signals.initial.onNext({})
+  Signals.initial.onNext()
 });

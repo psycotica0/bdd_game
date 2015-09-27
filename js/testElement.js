@@ -15,7 +15,7 @@ define(["rx", "signals"], function(Rx, Signals) {
 
   TestElement.prototype.update = function() {
     this.moveNext();
-    Signals.updateDone.onNext({});
+    Signals.updateDone.onNext();
   }
 
   TestElement.prototype.moveNext = function() {
@@ -30,7 +30,7 @@ define(["rx", "signals"], function(Rx, Signals) {
   }
 
   TestElement.prototype.resolve = function() {
-    Signals.resolveDone.onNext({});
+    Signals.resolveDone.onNext();
   }
 
   TestElement.prototype.commit = function() {

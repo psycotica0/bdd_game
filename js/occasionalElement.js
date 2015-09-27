@@ -20,7 +20,7 @@ define(["rx", "signals", "testElement"], function(Rx, Signals, TestElement) {
       delete this.nextState.inbound;
     }
 
-    Signals.resolveDone.onNext({});
+    Signals.resolveDone.onNext();
     TestElement.prototype.resolve.call(this);
   }
 
