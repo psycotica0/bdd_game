@@ -232,6 +232,44 @@ describe("Horizontal Cell", function() {
     expect(mockRight.pushLeft).toHaveBeenCalledWith(item2, cell);
   });
 
-  xit("should error if something comes in from both sides", function() {
+  it("should error if something comes in from both sides", function() {
+    var cell = new HorizontalCell(signalMock);
+    var item1 = {};
+    var item2 = {};
+
+    var called = false;
+    signalMock.error.subscribe(function() {
+      called = true;
+    });
+    signalMock.updateDone.subscribe(signalMock.resolve.onNext.bind(signalMock.resolve));
+
+    cell.pushLeft(item1, undefined);
+    cell.pushRight(item2, undefined);
+
+    signalMock.update.onNext();
+    expect(called).toBe(true);
+  });
+
+  it("should error if things collide", function() {
+    var cell = new HorizontalCell(signalMock);
+    var mockRight = createSpyObj("mockRight", ["pushLeft"]);
+    cell.right = mockRight;
+    var item1 = {};
+    var item2 = {};
+
+    var called = false;
+    signalMock.error.subscribe(function() {
+      called = true;
+    });
+    signalMock.updateDone.subscribe(signalMock.resolve.onNext.bind(signalMock.resolve));
+    signalMock.resolveDone.subscribe(signalMock.commit.onNext.bind(signalMock.commit));
+
+    cell.pushLeft(item1, undefined);
+    signalMock.update.onNext();
+
+    cell.pushRight(item2, undefined);
+    signalMock.update.onNext();
+
+    expect(called).toBe(true);
   });
 });

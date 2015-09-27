@@ -9,7 +9,7 @@ define(["cells/empty"], function(EmptyCell) {
 
   HorizontalCell.prototype.update = function() {
     if (this.contents) {
-      switch(this.contents.direction) {
+      switch(this.contents.source) {
         case "left":
           this.right.pushLeft(this.contents.item, this);
           break;
@@ -22,9 +22,25 @@ define(["cells/empty"], function(EmptyCell) {
   }
 
   HorizontalCell.prototype.resolve = function() {
+    // Wrong direction
     if (this.nextState.inboundTop || this.nextState.inboundBottom) {
       this.signals.error.onNext();
     }
+
+    // Meeting in the middle
+    if (this.nextState.inboundLeft && this.nextState.inboundRight) {
+      this.signals.error.onNext();
+    }
+
+    // Crossing paths
+    if (
+      (this.nextState.inboundLeft && this.contents && this.contents.source == "right") ||
+      (this.nextState.inboundRight && this.contents && this.contents.source == "left")
+    ) {
+      this.signals.error.onNext();
+    }
+
+
     this.signals.resolveDone.onNext();
   }
 
@@ -46,7 +62,7 @@ define(["cells/empty"], function(EmptyCell) {
 
   HorizontalCell.prototype.rollbackTop =
   HorizontalCell.prototype.rollbackBottom = function() {
-    this.signals.error.onNext();
+    throw new Error("Rollback from an unexpected direction");
   }
 
   HorizontalCell.prototype.commit = function() {
@@ -57,12 +73,12 @@ define(["cells/empty"], function(EmptyCell) {
     if (this.nextState.hasOwnProperty("inboundLeft")) {
       this.contents = {
         item: this.nextState.inboundLeft.item,
-        direction: "left"
+        source: "left"
       };
     } else if (this.nextState.hasOwnProperty("inboundRight")) {
       this.contents = {
         item: this.nextState.inboundRight.item,
-        direction: "right"
+        source: "right"
       };
     }
 
