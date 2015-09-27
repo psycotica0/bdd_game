@@ -28,6 +28,15 @@ define(["cells/empty"], function(EmptyCell) {
     this.signals.resolveDone.onNext();
   }
 
+  var rollback = function() {
+    delete this.nextState.contents;
+  };
+
+  HorizontalCell.prototype.rollbackLeft = rollback;
+  HorizontalCell.prototype.rollbackRight = rollback;
+  HorizontalCell.prototype.rollbackTop = rollback;
+  HorizontalCell.prototype.rollbackBottom = rollback;
+
   HorizontalCell.prototype.commit = function() {
     if (this.nextState.hasOwnProperty("contents")) {
       this.contents = this.nextState.contents;

@@ -80,7 +80,45 @@ describe("Horizontal Cell", function() {
     expect(mockLeft.pushRight).toHaveBeenCalledWith(item, cell);
   });
 
-  xit("should handle rollback properly", function() {
+  it("should handle rollback properly", function() {
+    var cell = new HorizontalCell(signalMock);
+    var item= {};
+    var mockRight = createSpyObj("mockRight", ["pushLeft"]);
+    cell.right = mockRight;
+
+    signalMock.error.subscribe(function() {
+      expect("Error not to be signalled").toBe("");
+    });
+
+    // Load it
+    signalMock.update.onNext();
+    cell.pushLeft(item, undefined);
+    signalMock.resolve.onNext();
+    signalMock.commit.onNext();
+
+    // Fail it
+    signalMock.update.onNext();
+    signalMock.resolve.onNext();
+    cell.rollbackRight();
+    signalMock.commit.onNext();
+
+    expect(mockRight.pushLeft).toHaveBeenCalledWith(item, cell);
+    expect(mockRight.pushLeft.calls.length).toBe(1);
+
+    // Pass and make sure it still comes out
+    signalMock.update.onNext();
+    signalMock.resolve.onNext();
+    signalMock.commit.onNext();
+
+    expect(mockRight.pushLeft).toHaveBeenCalledWith(item, cell);
+    expect(mockRight.pushLeft.calls.length).toBe(2);
+
+    // Make sure it's gone for real
+    signalMock.update.onNext();
+    signalMock.resolve.onNext();
+    signalMock.commit.onNext();
+
+    expect(mockRight.pushLeft.calls.length).toBe(2);
   });
 
   xit("should handle push while full", function() {
