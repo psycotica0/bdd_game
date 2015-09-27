@@ -1,56 +1,94 @@
-requirejs = require("requirejs");
-
-requirejs.config({
-  nodeRequire: require,
-  baseUrl: "./"
-})
+var requirejs = require("../config");
+var buildSignalMock = require("../signal_mock");
 
 var HorizontalCell = requirejs("cells/horizontal");
-var _ = requirejs("lodash");
 
 describe("Horizontal Cell", function() {
-  it("should pass things horizontally", function() {
-    var leftStub = new HorizontalCell();
-    spyOn(leftStub, "pushRight").andReturn(true);
+  var signalMock;
 
-    var rightStub = new HorizontalCell();
-    spyOn(rightStub, "pushLeft").andReturn(true);
-
-    var cell = new HorizontalCell();
-    var item = {};
-
-    leftStub.connectRight(cell).connectRight(rightStub);
-
-    expect(cell.pushLeft(item)).toBe(true);
-    expect(rightStub.pushLeft).toHaveBeenCalledWith(item);
-
-    expect(cell.pushRight(item)).toBe(true);
-    expect(leftStub.pushRight).toHaveBeenCalledWith(item);
+  beforeEach(function() {
+    signalMock = buildSignalMock();
   });
 
-  it("should chain", function() {
-    var head = new HorizontalCell();
-    var chain = head;
-
-    _.times(20, function() {
-      chain = chain.connectRight(new HorizontalCell());
+  it("should error when passed something from above", function() {
+    var called = false
+    var cell = new HorizontalCell(signalMock);
+    signalMock.error.subscribe(function() {
+      called = true
     })
-
-    var item = {};
-    spyOn(chain, "pushLeft").andReturn(true);
-    expect(head.pushLeft(item)).toBe(true);
-    expect(chain.pushLeft).toHaveBeenCalledWith(item);
+    cell.pushTop({}, undefined);
+    signalMock.resolve.onNext();
+    expect(called).toBe(true);
   });
 
-  it("should only work horizontally", function() {
-    var top = new HorizontalCell();
-    spyOn(top, "pushBottom").andReturn(true);
+  it("should error when passed something from below", function() {
+    var called = false
+    var cell = new HorizontalCell(signalMock);
+    signalMock.error.subscribe(function() {
+      called = true
+    })
+    cell.pushBottom({}, undefined);
+    signalMock.resolve.onNext();
+    expect(called).toBe(true);
+  });
 
-    var cell = new HorizontalCell();
-    cell.connectTop(top);
+  it("should pass things left to right", function() {
+    var cell = new HorizontalCell(signalMock);
+    var item = {};
+    var mockRight = createSpyObj("mockRight", ["pushLeft"])
+    cell.right = mockRight;
 
-    var item = {}
-    expect(cell.pushBottom(item)).toBeUndefined();
-    expect(top.pushBottom).not.toHaveBeenCalled();
+    // Setup Pipeline
+    signalMock.updateDone.subscribe(signalMock.resolve.onNext.bind(signalMock.resolve));
+    signalMock.resolveDone.subscribe(signalMock.commit.onNext.bind(signalMock.commit));
+    signalMock.error.subscribe(function() {
+      expect("Error not to be signalled").toBe("");
+    });
+
+    cell.pushLeft(item, undefined);
+
+    // First update should move it into place
+    signalMock.update.onNext();
+    expect(mockRight.pushLeft).not.toHaveBeenCalled();
+
+    // Second update should pass it to the next
+    signalMock.update.onNext();
+    expect(mockRight.pushLeft).toHaveBeenCalledWith(item, cell);
+  });
+
+  it("should pass things right to left", function() {
+    var cell = new HorizontalCell(signalMock);
+    var item = {};
+    var mockLeft = createSpyObj("mockLeft", ["pushRight"])
+    cell.left = mockLeft;
+
+    // Setup Pipeline
+    signalMock.updateDone.subscribe(signalMock.resolve.onNext.bind(signalMock.resolve));
+    signalMock.resolveDone.subscribe(signalMock.commit.onNext.bind(signalMock.commit));
+    signalMock.error.subscribe(function() {
+      expect("Error not to be signalled").toBe("");
+    });
+
+    cell.pushRight(item, undefined);
+
+    // First update should move it into place
+    signalMock.update.onNext();
+    expect(mockLeft.pushRight).not.toHaveBeenCalled();
+
+    // Second update should pass it to the next
+    signalMock.update.onNext();
+    expect(mockLeft.pushRight).toHaveBeenCalledWith(item, cell);
+  });
+
+  xit("should handle rollback properly", function() {
+  });
+
+  xit("should handle push while full", function() {
+  });
+
+  xit("should push back upstream when full", function() {
+  });
+
+  xit("should error if something comes in from both sides", function() {
   });
 });

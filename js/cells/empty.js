@@ -4,6 +4,7 @@ define(function() {
     this.nextState = {}
     this.signals.update.subscribe(this.update.bind(this));
     this.signals.resolve.subscribe(this.resolve.bind(this));
+    this.signals.commit.subscribe(this.commit.bind(this));
   };
 
   EmptyCell.prototype.update = function() {
