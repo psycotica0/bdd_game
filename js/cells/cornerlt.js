@@ -98,7 +98,7 @@ define(["cells/empty"], function(EmptyCell) {
     ];
 
     root.appendChild(svg("path", {d: dSrc.map(function(i){return i.join(" ")}).join(" "), class: "track"}));
-    root.appendChild(svg("rect", {x: size / 4, y: 0, width: size / 2, height: size * 3 / 5, class: "box"}));
+    root.appendChild(svg("circle", {cx: size * 2 / 6, cy: size * 2 / 6, r: size/6, class: "box"}));
   }
 
   return CornerLTCell;
