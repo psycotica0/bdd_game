@@ -56,5 +56,9 @@ define(function() {
     }
   }
 
+  DrawingCell.getAt = function(x, y) {
+    return registry[x][y];
+  }
+
   return DrawingCell;
 });

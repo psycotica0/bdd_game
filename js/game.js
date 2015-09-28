@@ -1,12 +1,27 @@
-requirejs(["rx", "signals", "cells/horizontal", "cells/empty", "drawingCell"], function(Rx, signals, HorizontalCell, EmptyCell, DrawingCell) {
+requirejs(["rx", "signals", "cells/horizontal", "cells/empty", "cells/cornerlt", "drawingCell"], function(Rx, signals, HorizontalCell, EmptyCell, CornerLTCell, DrawingCell) {
   var svg = document.getElementById("grid");
   var last;
 
-  var first = new DrawingCell(0, 0, svg, new HorizontalCell(signals), signals);
-  new DrawingCell(1, 0, svg, new EmptyCell(signals), signals);
+  var meow = [
+    "EEEEE",
+    "HHHH2",
+  ]
 
-  for (var x = 2; x < 6; x++) {
-    last = new DrawingCell(x, 0, svg, new HorizontalCell(signals), signals);
+  for (var y = 0; y < meow.length; y++) {
+    for (var x = 0; x < meow[y].length; x++) {
+      var consructor;
+      switch(meow[y][x]) {
+        case 'E':
+          constructor = EmptyCell;
+          break;
+        case 'H':
+          constructor = HorizontalCell;
+          break;
+        case '2':
+          constructor = CornerLTCell;
+      }
+      new DrawingCell(x, y, svg, new constructor(signals), signals);
+    }
   }
 
   var errorCount = 0;
@@ -19,7 +34,5 @@ requirejs(["rx", "signals", "cells/horizontal", "cells/empty", "drawingCell"], f
   });
   signals.initial.onNext();
 
-  last.backingCell.pushRight("a", undefined);
-  first.backingCell.pushLeft("b", undefined);
-
+  DrawingCell.getAt(0,1).backingCell.pushLeft("b", undefined);
 });
