@@ -37,5 +37,15 @@ requirejs(["rx", "signals", "cells/horizontal", "cells/empty", "cells/cornerlt",
   });
   signals.initial.onNext();
 
-  DrawingCell.getAt(0,1).backingCell.pushLeft("b", undefined);
+  var takeOnly;
+  {
+    var count = 0;
+    takeOnly = function() {
+      return (count++) % 3 == 0;
+    }
+  }
+  var count = 0;
+  signals.update.filter(takeOnly).take(4).subscribe(function() {
+    DrawingCell.getAt(0,1).backingCell.pushLeft("b", undefined);
+  });
 });
