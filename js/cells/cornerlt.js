@@ -11,10 +11,10 @@ define(["cells/empty"], function(EmptyCell) {
     if (this.contents) {
       switch(this.contents.source) {
         case "left":
-          this.top.pushLeft(this.contents.item, this);
+          this.top.pushBottom(this.contents.item, this);
           break;
         case "top":
-          this.left.pushTop(this.contents.item, this);
+          this.left.pushRight(this.contents.item, this);
       }
       this.nextState.contents = undefined;
     }
@@ -46,7 +46,7 @@ define(["cells/empty"], function(EmptyCell) {
 
   CornerLTCell.prototype.rollbackLeft = function() {
     if (this.nextState.hasOwnProperty("inboundTop")) {
-      this.nextState.inboundTop.sender.rollbackLeft();
+      this.nextState.inboundTop.sender.rollbackBottom();
       delete this.nextState.inboundTop;
     }
     delete this.nextState.contents;
@@ -54,7 +54,7 @@ define(["cells/empty"], function(EmptyCell) {
 
   CornerLTCell.prototype.rollbackTop = function() {
     if (this.nextState.hasOwnProperty("inboundLeft")) {
-      this.nextState.inboundLeft.sender.rollbackTop();
+      this.nextState.inboundLeft.sender.rollbackRight();
       delete this.nextState.inboundLeft;
     }
     delete this.nextState.contents;
