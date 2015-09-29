@@ -51,14 +51,22 @@ requirejs([
   });
   signals.initial.onNext();
 
-  var takeOnly;
-  {
-    var count = 0;
-    takeOnly = function() {
-      return (count++) % 3 == 0;
+  function snd(one, two) {
+    return two;
+  }
+
+  function divides(n) {
+    return function(i) {
+      return i % n == 0;
     }
   }
-  signals.update.filter(takeOnly).take(4).subscribe(function() {
-    DrawingCell.getAt(0,1).backingCell.pushLeft("b", undefined);
+  var push = Rx.Observable.zip(
+    signals.update.filter(divides(3)),
+    Rx.Observable.from(["a", "b", "c", "d"]),
+    snd
+  );
+
+  push.subscribe(function(item) {
+    DrawingCell.getAt(0,1).backingCell.pushLeft(item, undefined);
   });
 });
