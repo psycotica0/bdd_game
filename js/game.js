@@ -1,9 +1,19 @@
-requirejs(["rx", "signals", "cells/horizontal", "cells/empty", "cells/cornerlt", "cells/cornerbl", "drawingCell"], function(Rx, signals, HorizontalCell, EmptyCell, CornerLTCell, CornerBLCell,DrawingCell) {
+requirejs([
+  "rx", "signals",
+  "cells/horizontal", "cells/empty",
+  "cells/cornerlt", "cells/cornerbl",
+  "cells/cornerrb", "drawingCell"
+  ], function(
+  Rx, signals,
+  HorizontalCell, EmptyCell,
+  CornerLTCell, CornerBLCell,
+  CornerRBCell, DrawingCell
+) {
   var svg = document.getElementById("grid");
   var last;
 
   var meow = [
-    "EEHH3",
+    "E4HH3",
     "HHHH2",
   ]
 
@@ -22,6 +32,10 @@ requirejs(["rx", "signals", "cells/horizontal", "cells/empty", "cells/cornerlt",
           break;
         case '3':
           constructor = CornerBLCell;
+          break;
+        case '4':
+          constructor = CornerRBCell;
+          break;
       }
       new DrawingCell(x, y, svg, new constructor(signals), signals);
     }
