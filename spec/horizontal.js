@@ -2,6 +2,7 @@ var requirejs = require("../config");
 var buildSignalMock = require("../signal_mock");
 
 var HorizontalCell = requirejs("cells/horizontal");
+var Dir = requirejs("dir");
 
 describe("Horizontal Cell", function() {
   var signalMock;
@@ -35,7 +36,7 @@ describe("Horizontal Cell", function() {
   it("should pass things left to right", function() {
     var cell = new HorizontalCell(signalMock);
     var item = {};
-    var mockRight = createSpyObj("mockRight", ["pushLeft"])
+    var mockRight = createSpyObj("mockRight", ["push"])
     cell.right = mockRight;
 
     // Setup Pipeline
@@ -49,11 +50,11 @@ describe("Horizontal Cell", function() {
 
     // First update should move it into place
     signalMock.update.onNext();
-    expect(mockRight.pushLeft).not.toHaveBeenCalled();
+    expect(mockRight.push).not.toHaveBeenCalled();
 
     // Second update should pass it to the next
     signalMock.update.onNext();
-    expect(mockRight.pushLeft).toHaveBeenCalledWith(item, cell);
+    expect(mockRight.push).toHaveBeenCalledWith(Dir.left, item, cell);
   });
 
   it("should pass things right to left", function() {
