@@ -64,7 +64,7 @@ describe("Horizontal Cell", function() {
   it("should pass things right to left", function() {
     var cell = new HorizontalCell(signalMock);
     var item = {};
-    var mockLeft = createSpyObj("mockLeft", ["pushRight"])
+    var mockLeft = createSpyObj("mockLeft", ["push"])
     cell.left = mockLeft;
 
     // Setup Pipeline
@@ -78,17 +78,21 @@ describe("Horizontal Cell", function() {
 
     // First update should move it into place
     signalMock.update.onNext();
-    expect(mockLeft.pushRight).not.toHaveBeenCalled();
+    expect(mockLeft.push).not.toHaveBeenCalled();
 
     // Second update should pass it to the next
     signalMock.update.onNext();
-    expect(mockLeft.pushRight).toHaveBeenCalledWith(item, cell);
+    expect(mockLeft.push).toHaveBeenCalledWith(Dir.right, item, cell);
+
+    // Third update should do nothing
+    signalMock.update.onNext();
+    expect(mockLeft.push.calls.length).toBe(1);
   });
 
   it("should handle rollback properly", function() {
     var cell = new HorizontalCell(signalMock);
     var item= {};
-    var mockRight = createSpyObj("mockRight", ["pushLeft"]);
+    var mockRight = createSpyObj("mockRight", ["push"]);
     cell.right = mockRight;
 
     signalMock.error.subscribe(function() {
@@ -104,31 +108,31 @@ describe("Horizontal Cell", function() {
     // Fail it
     signalMock.update.onNext();
     signalMock.resolve.onNext();
-    cell.rollbackRight();
+    cell.rollback(Dir.right);
     signalMock.commit.onNext();
 
-    expect(mockRight.pushLeft).toHaveBeenCalledWith(item, cell);
-    expect(mockRight.pushLeft.calls.length).toBe(1);
+    expect(mockRight.push).toHaveBeenCalledWith(Dir.left, item, cell);
+    expect(mockRight.push.calls.length).toBe(1);
 
     // Pass and make sure it still comes out
     signalMock.update.onNext();
     signalMock.resolve.onNext();
     signalMock.commit.onNext();
 
-    expect(mockRight.pushLeft).toHaveBeenCalledWith(item, cell);
-    expect(mockRight.pushLeft.calls.length).toBe(2);
+    expect(mockRight.push).toHaveBeenCalledWith(Dir.left, item, cell);
+    expect(mockRight.push.calls.length).toBe(2);
 
     // Make sure it's gone for real
     signalMock.update.onNext();
     signalMock.resolve.onNext();
     signalMock.commit.onNext();
 
-    expect(mockRight.pushLeft.calls.length).toBe(2);
+    expect(mockRight.push.calls.length).toBe(2);
   });
 
   it("should handle push while full", function() {
     var cell = new HorizontalCell(signalMock);
-    var mockLeft = createSpyObj("mockLeft", ["pushRight"]);
+    var mockLeft = createSpyObj("mockLeft", ["push"]);
     cell.left = mockLeft;
     var item1 = {};
     var item2 = {};
@@ -143,25 +147,25 @@ describe("Horizontal Cell", function() {
     // Load the first one
     cell.pushRight(item1, undefined);
     signalMock.update.onNext();
-    expect(mockLeft.pushRight.calls.length).toBe(0);
+    expect(mockLeft.push.calls.length).toBe(0);
 
     // Load the second while getting the first
     cell.pushRight(item2, undefined);
     signalMock.update.onNext();
-    expect(mockLeft.pushRight.calls.length).toBe(1);
-    expect(mockLeft.pushRight).toHaveBeenCalledWith(item1, cell);
+    expect(mockLeft.push.calls.length).toBe(1);
+    expect(mockLeft.push).toHaveBeenCalledWith(Dir.right, item1, cell);
 
     // Get the last one
     signalMock.update.onNext();
-    expect(mockLeft.pushRight.calls.length).toBe(2);
-    expect(mockLeft.pushRight).toHaveBeenCalledWith(item2, cell);
+    expect(mockLeft.push.calls.length).toBe(2);
+    expect(mockLeft.push).toHaveBeenCalledWith(Dir.right, item2, cell);
   });
 
   it("should push back upstream when full", function() {
     var cell = new HorizontalCell(signalMock);
     var item1 = {};
     var item2 = {};
-    var mockRight = createSpyObj("mockRight", ["pushLeft"]);
+    var mockRight = createSpyObj("mockRight", ["push"]);
     var mockLeft = createSpyObj("mockLeft", ["rollbackRight"]);
     cell.right = mockRight;
     cell.left = mockLeft;
@@ -180,7 +184,7 @@ describe("Horizontal Cell", function() {
     cell.pushLeft(item2, mockLeft);
     signalMock.update.onNext();
     signalMock.resolve.onNext();
-    cell.rollbackRight();
+    cell.rollback(Dir.right);
     signalMock.commit.onNext();
 
     expect(mockLeft.rollbackRight).toHaveBeenCalled();
@@ -191,22 +195,22 @@ describe("Horizontal Cell", function() {
     signalMock.resolve.onNext();
     signalMock.commit.onNext();
 
-    expect(mockRight.pushLeft).toHaveBeenCalledWith(item1, cell);
-    expect(mockRight.pushLeft.calls.length).toBe(2);
+    expect(mockRight.push).toHaveBeenCalledWith(Dir.left, item1, cell);
+    expect(mockRight.push.calls.length).toBe(2);
 
     // Make sure the second one made it
     signalMock.update.onNext();
     signalMock.resolve.onNext();
     signalMock.commit.onNext();
 
-    expect(mockRight.pushLeft.calls.length).toBe(3);
-    expect(mockRight.pushLeft).toHaveBeenCalledWith(item2, cell);
+    expect(mockRight.push.calls.length).toBe(3);
+    expect(mockRight.push).toHaveBeenCalledWith(Dir.left, item2, cell);
   });
 
   it("should handle push from the left then the right", function() {
     var cell = new HorizontalCell(signalMock);
-    var mockLeft = createSpyObj("mockLeft", ["pushRight"]);
-    var mockRight = createSpyObj("mockRight", ["pushLeft"]);
+    var mockLeft = createSpyObj("mockLeft", ["push"]);
+    var mockRight = createSpyObj("mockRight", ["push"]);
     cell.left = mockLeft;
     cell.right = mockRight;
     var item1 = {};
@@ -221,20 +225,20 @@ describe("Horizontal Cell", function() {
 
     cell.pushRight(item1, mockRight);
     signalMock.update.onNext();
-    expect(mockLeft.pushRight.calls.length).toBe(0);
-    expect(mockRight.pushLeft.calls.length).toBe(0);
+    expect(mockLeft.push.calls.length).toBe(0);
+    expect(mockRight.push.calls.length).toBe(0);
 
     signalMock.update.onNext();
-    expect(mockLeft.pushRight.calls.length).toBe(1);
-    expect(mockRight.pushLeft.calls.length).toBe(0);
-    expect(mockLeft.pushRight).toHaveBeenCalledWith(item1, cell);
+    expect(mockLeft.push.calls.length).toBe(1);
+    expect(mockRight.push.calls.length).toBe(0);
+    expect(mockLeft.push).toHaveBeenCalledWith(Dir.right, item1, cell);
 
     cell.pushLeft(item2, mockLeft);
     signalMock.update.onNext();
     signalMock.update.onNext();
-    expect(mockLeft.pushRight.calls.length).toBe(1);
-    expect(mockRight.pushLeft.calls.length).toBe(1);
-    expect(mockRight.pushLeft).toHaveBeenCalledWith(item2, cell);
+    expect(mockLeft.push.calls.length).toBe(1);
+    expect(mockRight.push.calls.length).toBe(1);
+    expect(mockRight.push).toHaveBeenCalledWith(Dir.left, item2, cell);
   });
 
   it("should error if something comes in from both sides", function() {
@@ -257,7 +261,7 @@ describe("Horizontal Cell", function() {
 
   it("should error if things collide", function() {
     var cell = new HorizontalCell(signalMock);
-    var mockRight = createSpyObj("mockRight", ["pushLeft"]);
+    var mockRight = createSpyObj("mockRight", ["push"]);
     cell.right = mockRight;
     var item1 = {};
     var item2 = {};

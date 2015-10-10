@@ -80,6 +80,10 @@ define(["lodash", "dir"], function(_, Dir) {
   SimpleCell.prototype.pushRight = _.partial(SimpleCell.prototype.push, Dir.right);
   SimpleCell.prototype.pushBottom = _.partial(SimpleCell.prototype.push, Dir.bottom);
 
+  SimpleCell.prototype.rollback = function(dir) {
+    this.nextState = {};
+  }
+
   // This function creates a bidirectional connection between the two
   // directions given
   SimpleCell.prototype.bidirectional = function(one, two) {
