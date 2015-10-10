@@ -35,13 +35,13 @@ define(["lodash", "dir"], function(_, Dir) {
       }
 
       other.push(otherDir.opposite, this.content.item, this);
+      this.nextState.content = undefined;
     }
     this.signals.updateDone.onNext();
   };
 
   SimpleCell.prototype.resolve = function() {
     for (dir in this.nextState.inbound) {
-      //console.log(dir, this.connection, this.connection[dir]);
       if (!this.connection[dir]) {
         this.signals.error.onNext();
         this.nextState.inbound[dir] = undefined;

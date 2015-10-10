@@ -55,6 +55,10 @@ describe("Horizontal Cell", function() {
     // Second update should pass it to the next
     signalMock.update.onNext();
     expect(mockRight.push).toHaveBeenCalledWith(Dir.left, item, cell);
+
+    // Third update should do nothing
+    signalMock.update.onNext();
+    expect(mockRight.push.calls.length).toBe(1);
   });
 
   it("should pass things right to left", function() {
