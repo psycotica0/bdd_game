@@ -41,9 +41,28 @@ define(["lodash", "dir"], function(_, Dir) {
   };
 
   SimpleCell.prototype.resolve = function() {
-    error = _(this.nextState.inbound).any(function(item) {
+    // Detect pushes from unconnected directions
+    var error = _(this.nextState.inbound).any(function(item) {
       return !this.connection[item.source];
     }, this);
+
+    // Detect pushes from both sides of a connection
+    error = error || _.reduce(this.nextState.inbound, function(acc, item) {
+      // If this source was already a destination, then collision
+      if (_.includes(acc.dests, item.source)) {
+        acc.collision = true;
+      }
+      // Push this destination into the list for the future
+      acc.dests.push(this.connection[item.source]);
+      return acc;
+    }, {collision: false, dests: []}, this).collision;
+
+    // Detect pushes from the same side we've pushed to
+    if (this.content) {
+      error = error || _(this.nextState.inbound).
+        map('source').
+        includes(this.connection[this.content.source]);
+    }
 
     if (error) {
       this.signals.error.onNext();
