@@ -41,12 +41,14 @@ define(["lodash", "dir"], function(_, Dir) {
   };
 
   SimpleCell.prototype.resolve = function() {
-    for (dir in this.nextState.inbound) {
-      if (!this.connection[dir]) {
-        this.signals.error.onNext();
-        this.nextState.inbound[dir] = undefined;
-      }
+    error = _(this.nextState.inbound).any(function(item) {
+      return !this.connection[item.source];
+    }, this);
+
+    if (error) {
+      this.signals.error.onNext();
     }
+
     this.signals.resolveDone.onNext();
   };
 
@@ -55,21 +57,24 @@ define(["lodash", "dir"], function(_, Dir) {
       if (this.nextState.hasOwnProperty('content')) {
         this.content = this.nextState.content
       }
-      for (dir in this.nextState.inbound) {
-        if (this.nextState.inbound[dir]) {
-          this.content = {
-            item: this.nextState.inbound[dir].item, 
-            source: dir
-          }
-        }
-      }
+
+      _.forEach(this.nextState.inbound, function(item) {
+        this.content = {
+          item: item.item,
+          source: item.source
+        };
+      }, this);
     }
     this.nextState = {};
   };
 
   SimpleCell.prototype.push = function(dir, item, sender) {
-    this.nextState.inbound = this.nextState.inbound || {}
-    this.nextState.inbound[dir] = {item: item, sender: sender}
+    this.nextState.inbound = this.nextState.inbound || [];
+    this.nextState.inbound.push({
+      item: item,
+      sender: sender,
+      source: dir
+    });
   }
 
   SimpleCell.prototype.render = function(root, svg, size) {
@@ -81,6 +86,9 @@ define(["lodash", "dir"], function(_, Dir) {
   SimpleCell.prototype.pushBottom = _.partial(SimpleCell.prototype.push, Dir.bottom);
 
   SimpleCell.prototype.rollback = function(dir) {
+    _.forEach(this.nextState.inbound, function(item) {
+      item.sender.rollback(item.source.opposite);
+    });
     this.nextState = {};
   }
 

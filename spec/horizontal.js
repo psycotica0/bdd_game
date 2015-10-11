@@ -166,7 +166,7 @@ describe("Horizontal Cell", function() {
     var item1 = {};
     var item2 = {};
     var mockRight = createSpyObj("mockRight", ["push"]);
-    var mockLeft = createSpyObj("mockLeft", ["rollbackRight"]);
+    var mockLeft = createSpyObj("mockLeft", ["rollback"]);
     cell.right = mockRight;
     cell.left = mockLeft;
 
@@ -187,7 +187,7 @@ describe("Horizontal Cell", function() {
     cell.rollback(Dir.right);
     signalMock.commit.onNext();
 
-    expect(mockLeft.rollbackRight).toHaveBeenCalled();
+    expect(mockLeft.rollback).toHaveBeenCalledWith(Dir.right);
 
     // Pass and make sure it still comes out
     signalMock.update.onNext();
