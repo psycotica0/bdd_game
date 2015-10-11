@@ -85,6 +85,9 @@ define(["lodash", "dir"], function(_, Dir) {
       }, this);
     }
     this.nextState = {};
+    if (this.setClass) {
+      this.setClass(this.content ? "full " + this.content.item : "");
+    }
   };
 
   SimpleCell.prototype.push = function(dir, item, sender) {

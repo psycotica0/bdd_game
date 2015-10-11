@@ -6,6 +6,13 @@
     <script>
       var require = {
         baseUrl: "js",
+        packages: [
+          {
+            name: "lodash",
+            location: "../node_modules/lodash",
+            main: "./index.js"
+          }
+        ],
         paths: {
           rx: "../node_modules/rx/dist/rx.lite"
         }
