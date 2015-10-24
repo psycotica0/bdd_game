@@ -3,21 +3,21 @@ requirejs([
   "cells/horizontal", "cells/empty",
   "cells/cornerlt", "cells/cornerbl",
   "cells/cornerrb", "drawingCell",
-  "cells/exclusive4"
+  "cells/exclusive4", "cells/cornertr"
   ], function(
   Rx, signals,
   HorizontalCell, EmptyCell,
   CornerLTCell, CornerBLCell,
   CornerRBCell, DrawingCell,
-  Exclusive4
+  Exclusive4, CornerTRCell
 ) {
   var svg = document.getElementById("grid");
   var last;
 
   var meow = [
-    "EE4H3",
-    "HH+H2",
-    "EH2EE",
+    "E34H3",
+    "H++H2",
+    "E12EE",
   ]
 
   for (var y = 0; y < meow.length; y++) {
@@ -29,6 +29,9 @@ requirejs([
           break;
         case 'H':
           constructor = HorizontalCell;
+          break;
+        case '1':
+          constructor = CornerTRCell;
           break;
         case '2':
           constructor = CornerLTCell;
