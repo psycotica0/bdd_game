@@ -15,9 +15,9 @@ requirejs([
   var last;
 
   var meow = [
-    "E34H3",
-    "H++H2",
-    "E12EE",
+    "E4343",
+    "H+++2",
+    "E212E",
   ]
 
   for (var y = 0; y < meow.length; y++) {
@@ -70,7 +70,7 @@ requirejs([
     }
   }
   var push = Rx.Observable.zip(
-    signals.update.filter(divides(3)),
+    signals.update.filter(divides(2)),
     Rx.Observable.from(["a", "b", "c", "d"]),
     snd
   );
