@@ -66,6 +66,21 @@ define(["lodash", "dir"], function(_, Dir) {
 
     if (error) {
       this.signals.error.onNext();
+      delete this.nextState.inbound;
+    }
+
+    // Only allow one inbound at a time
+    if (this.nextState.inbound && this.nextState.inbound.length > 1) {
+      var sorted = _(this.nextState.inbound).sortBy("source.order");
+
+      sorted.
+        rest().
+        forEach(function(item) {
+          item.sender.rollback(item.source.opposite);
+        }).
+        commit();
+
+      this.nextState.inbound = [sorted.first()];
     }
 
     this.signals.resolveDone.onNext();
