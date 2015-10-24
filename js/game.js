@@ -71,7 +71,7 @@ requirejs([
   }
   var push = Rx.Observable.zip(
     signals.update.filter(divides(2)),
-    Rx.Observable.from(["a", "b", "c", "d"]),
+    Rx.Observable.from(["a", "b", "c", "d", "a", "b", "c", "d"]),
     snd
   );
 
