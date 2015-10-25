@@ -1,11 +1,11 @@
 requirejs([
-  "rx", "signals",
+  "rx", "signals", "controls",
   "cells/horizontal", "cells/empty",
   "cells/cornerlt", "cells/cornerbl",
   "cells/cornerrb", "drawingCell",
   "cells/exclusive4", "cells/cornertr"
   ], function(
-  Rx, signals,
+  Rx, signals, controls,
   HorizontalCell, EmptyCell,
   CornerLTCell, CornerBLCell,
   CornerRBCell, DrawingCell,
@@ -69,8 +69,12 @@ requirejs([
       return i % n == 0;
     }
   }
+  var frameNumber = 0;
+  function count(v) {
+    return frameNumber++;
+  }
   var push = Rx.Observable.zip(
-    signals.update.filter(divides(2)),
+    signals.update.map(count).filter(divides(2)),
     Rx.Observable.from(["a", "b", "c", "d", "a", "b", "c", "d"]),
     snd
   );
