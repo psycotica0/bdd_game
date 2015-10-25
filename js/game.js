@@ -58,14 +58,32 @@ requirejs([
     }
   }
 
-  var errorCount = 0;
-  var errorSpan = document.getElementById("errors");
-  signals.initial.subscribe(function() {
-    errorSpan.textContent = errorCount;
-  });
-  signals.error.subscribe(function() {
-    errorSpan.textContent = ++errorCount;
-  });
+  {
+    var errorCount = 0;
+    var errorSpan = document.getElementById("errors");
+    signals.initial.subscribe(function() {
+      errorSpan.textContent = errorCount;
+    });
+    signals.error.subscribe(function() {
+      errorSpan.textContent = ++errorCount;
+    });
+  }
+
+  {
+    var successCount = 0;
+    var task = document.getElementById("task1");
+    var successSpan = document.querySelector("#task1 .progress");
+    signals.initial.subscribe(function() {
+      successSpan.textContent = successCount;
+    });
+    signals.received.subscribe(function() {
+      successSpan.textContent = ++successCount;
+      if (successCount == 10) {
+        task.setAttribute("class", "complete");
+      }
+    });
+  }
+
   signals.initial.onNext();
   signals.playControl.onNext("play");
 });

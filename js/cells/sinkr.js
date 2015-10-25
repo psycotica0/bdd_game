@@ -16,6 +16,7 @@ define(["dir"], function(Dir) {
   SinkR.prototype.commit = function() {
     if (this.received) {
       this.setClass("magic");
+      this.signals.received.onNext();
     } else {
       this.setClass("");
     }

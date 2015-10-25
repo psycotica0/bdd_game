@@ -16,6 +16,8 @@ define(["rx"], function(Rx) {
 
   var commitSignal = resolveDoneSignal.debounce(100);
 
+  var received = new Rx.Subject();
+
   return {
     initial: initialSignal,
     playControl: updateSelector,
@@ -26,5 +28,6 @@ define(["rx"], function(Rx) {
     resolveDone: resolveDoneSignal,
     commit: commitSignal,
     error: new Rx.Subject(),
+    received: received
   }
 });

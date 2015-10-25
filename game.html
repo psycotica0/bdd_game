@@ -59,6 +59,21 @@
       #errors {
         color: red;
       }
+      ul {
+        list-style: none;
+      }
+      li {
+        border: thin solid black;
+        padding: 0.5em;
+      }
+      li.complete {
+        background: green;
+        color: white;
+      }
+      li.complete:after {
+        content: '✓';
+        font-size: 150%;
+      }
     </style>
   </head>
   <body>
@@ -70,5 +85,10 @@
       <button id="play">Play</button>
       <button id="next">Next</button>
     </div>
+    <ul>
+      <li id="task1">
+        Send 10 items to the end! <span class="progress">0</span>/10
+      </li>
+    </ul>
   </body>
 </html>
