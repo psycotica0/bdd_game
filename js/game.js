@@ -62,7 +62,7 @@ requirejs([
     var errorCount = 0;
     var errorSpan = document.getElementById("errors");
     signals.initial.subscribe(function() {
-      errorSpan.textContent = errorCount;
+      errorSpan.textContent = "";
     });
     signals.error.subscribe(function() {
       errorSpan.textContent = ++errorCount;
