@@ -4,6 +4,9 @@ define(["cells/simple", "dir"], function(SimpleCell, Dir) {
     this.items = 10;
     this.interval = 2;
     this.position = 0;
+    this.signals.initial.subscribe(function() {
+      this.setClass("soon");
+    }.bind(this));
   }
 
   EmitterR.prototype = Object.create(SimpleCell.prototype);
@@ -33,8 +36,8 @@ define(["cells/simple", "dir"], function(SimpleCell, Dir) {
 
     SimpleCell.prototype.commit.call(this);
 
-    if (this.position == 0) {
-      this.setClass("full a");
+    if (this.position == 0 && this.items > 0) {
+      this.setClass("soon");
     } else {
       this.setClass("");
     }
