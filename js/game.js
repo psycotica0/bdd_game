@@ -3,20 +3,22 @@ requirejs([
   "cells/horizontal", "cells/empty",
   "cells/cornerlt", "cells/cornerbl",
   "cells/cornerrb", "drawingCell",
-  "cells/exclusive4", "cells/cornertr"
+  "cells/exclusive4", "cells/cornertr",
+  "cells/emitter_r"
   ], function(
   Rx, signals, controls,
   HorizontalCell, EmptyCell,
   CornerLTCell, CornerBLCell,
   CornerRBCell, DrawingCell,
-  Exclusive4, CornerTRCell
+  Exclusive4, CornerTRCell,
+  EmitterR
 ) {
   var svg = document.getElementById("grid");
   var last;
 
   var meow = [
     "E4343",
-    "H+++2",
+    "R+++2",
     "E212E",
   ]
 
@@ -45,6 +47,9 @@ requirejs([
         case '+':
           constructor = Exclusive4;
           break;
+        case 'R':
+          constructor = EmitterR;
+          break;
       }
       new DrawingCell(x, y, svg, new constructor(signals), signals);
     }
@@ -59,27 +64,4 @@ requirejs([
     errorSpan.textContent = ++errorCount;
   });
   signals.initial.onNext();
-
-  function snd(one, two) {
-    return two;
-  }
-
-  function divides(n) {
-    return function(i) {
-      return i % n == 0;
-    }
-  }
-  var frameNumber = 0;
-  function count(v) {
-    return frameNumber++;
-  }
-  var push = Rx.Observable.zip(
-    signals.update.map(count).filter(divides(2)),
-    Rx.Observable.from(["a", "b", "c", "d", "a", "b", "c", "d"]),
-    snd
-  );
-
-  push.subscribe(function(item) {
-    DrawingCell.getAt(0,1).backingCell.pushLeft(item, undefined);
-  });
 });
