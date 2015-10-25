@@ -1,7 +1,7 @@
 define(["rx"], function(Rx) {
   var initialSignal = new Rx.Subject();
 
-  var clockSignal = new Rx.Observable.timer(2000, 2000);
+  var clockSignal = new Rx.Observable.timer(700, 700);
   var stepSignal = new Rx.Subject();
 
   var updateSelector = new Rx.Subject();
