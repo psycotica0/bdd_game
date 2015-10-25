@@ -67,4 +67,5 @@ requirejs([
     errorSpan.textContent = ++errorCount;
   });
   signals.initial.onNext();
+  signals.playControl.onNext("play");
 });
