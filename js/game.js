@@ -4,14 +4,14 @@ requirejs([
   "cells/cornerlt", "cells/cornerbl",
   "cells/cornerrb", "drawingCell",
   "cells/exclusive4", "cells/cornertr",
-  "cells/emitter_r"
+  "cells/emitter_r", "cells/sinkr"
   ], function(
   Rx, signals, controls,
   HorizontalCell, EmptyCell,
   CornerLTCell, CornerBLCell,
   CornerRBCell, DrawingCell,
   Exclusive4, CornerTRCell,
-  EmitterR
+  EmitterR, SinkR
 ) {
   var svg = document.getElementById("grid");
   var last;
@@ -19,7 +19,7 @@ requirejs([
   var meow = [
     "E4343",
     "R+++2",
-    "E212E",
+    "S212E",
   ]
 
   for (var y = 0; y < meow.length; y++) {
@@ -49,6 +49,9 @@ requirejs([
           break;
         case 'R':
           constructor = EmitterR;
+          break;
+        case 'S':
+          constructor = SinkR;
           break;
       }
       new DrawingCell(x, y, svg, new constructor(signals), signals);

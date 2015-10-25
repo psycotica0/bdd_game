@@ -5,7 +5,7 @@ define(["cells/simple", "dir"], function(SimpleCell, Dir) {
     this.interval = 2;
     this.position = 0;
     this.signals.initial.subscribe(function() {
-      this.setClass("soon");
+      this.setClass("magic");
     }.bind(this));
   }
 
@@ -37,7 +37,7 @@ define(["cells/simple", "dir"], function(SimpleCell, Dir) {
     SimpleCell.prototype.commit.call(this);
 
     if (this.position == 0 && this.items > 0) {
-      this.setClass("soon");
+      this.setClass("magic");
     } else {
       this.setClass("");
     }
