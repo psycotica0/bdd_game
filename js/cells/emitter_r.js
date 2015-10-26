@@ -4,6 +4,7 @@ define(["cells/simple", "dir"], function(SimpleCell, Dir) {
     this.items = 10;
     this.interval = 2;
     this.position = 0;
+    this.itemTypes = ["e", "d", "c", "b", "a", "e", "d", "c", "b", "a"];
     this.signals.initial.subscribe(function() {
       this.setClass("magic");
     }.bind(this));
@@ -14,7 +15,7 @@ define(["cells/simple", "dir"], function(SimpleCell, Dir) {
 
   EmitterR.prototype.update = function() {
     if (this.position == 0 && this.items > 0) {
-      this.right.push(Dir.left, "a", this);
+      this.right.push(Dir.left, this.itemTypes[this.items-1], this);
       this.nextState.items = this.items - 1;
     }
     this.nextState.position = (this.position + 1) % this.interval;
