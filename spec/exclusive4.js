@@ -127,5 +127,4 @@ describe("Exclusive4 Cell", function() {
       }
     });
   });
-
 });

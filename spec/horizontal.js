@@ -281,4 +281,6 @@ describe("Horizontal Cell", function() {
 
     expect(called).toBe(true);
   });
+
+  xit("should pass things left to right, even if there's an error on the top");
 });
