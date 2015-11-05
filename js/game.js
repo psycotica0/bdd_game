@@ -4,7 +4,8 @@ requirejs([
   "cells/cornerlt", "cells/cornerbl",
   "cells/cornerrb", "drawingCell",
   "cells/exclusive4", "cells/cornertr",
-  "cells/emitter_r", "cells/sinkr"
+  "cells/emitter_r", "cells/sinkr",
+  "rx.custom"
   ], function(
   Rx, signals, controls,
   HorizontalCell, EmptyCell,
@@ -59,25 +60,23 @@ requirejs([
   }
 
   {
-    var errorCount = 0;
     var errorSpan = document.getElementById("errors");
     signals.initial.subscribe(function() {
       errorSpan.textContent = "";
     });
-    signals.error.subscribe(function() {
-      errorSpan.textContent = ++errorCount;
+    signals.error.tally().succ().subscribe(function(errorCount) {
+      errorSpan.textContent = errorCount;
     });
   }
 
   {
-    var successCount = 0;
     var task = document.getElementById("task1");
     var successSpan = document.querySelector("#task1 .progress");
     signals.initial.subscribe(function() {
-      successSpan.textContent = successCount;
+      successSpan.textContent = "0";
     });
-    signals.received.subscribe(function() {
-      successSpan.textContent = ++successCount;
+    signals.received.tally().succ().subscribe(function(successCount) {
+      successSpan.textContent = successCount;
       if (successCount == 10) {
         task.setAttribute("class", "complete");
       }
