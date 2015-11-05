@@ -1,47 +1,57 @@
-define(["cells/simple", "dir"], function(SimpleCell, Dir) {
+define(["lodash", "dir", "rx", "rx.custom"], function(_, Dir, Rx) {
   var EmitterR = function(signals) {
-    SimpleCell.call(this, signals);
-    this.items = 10;
+    this.signals = signals;
+    this.nextItems = undefined;
+    this.items = ["a", "b", "c", "d", "e", "a", "b", "c", "d", "e"];
     this.interval = 2;
-    this.position = 0;
-    this.itemTypes = ["e", "d", "c", "b", "a", "e", "d", "c", "b", "a"];
+
+    // Start off about to emit
     this.signals.initial.subscribe(function() {
       this.setClass("magic");
     }.bind(this));
-  }
 
-  EmitterR.prototype = Object.create(SimpleCell.prototype);
-  EmitterR.constructor = EmitterR;
+    var haveItems = function() {
+      return (this.items.length > 0);
+    }.bind(this);
 
-  EmitterR.prototype.update = function() {
-    if (this.position == 0 && this.items > 0) {
-      this.right.push(Dir.left, this.itemTypes[this.items-1], this);
-      this.nextState.items = this.items - 1;
-    }
-    this.nextState.position = (this.position + 1) % this.interval;
-    this.signals.updateDone.onNext();
+    // This fires something out every interval updates, until there are none
+    // left
+    this.signals.update.
+      tally().
+      downsample(this.interval).
+      takeWhile(haveItems).
+      subscribe(function() {
+        this.right.push(Dir.left, _.head(this.items), this);
+        this.nextItems = _.tail(this.items);
+        this.signals.updateDone.onNext();
+      }.bind(this));
+
+    // This commits the changes and clears the magic state
+    this.signals.commit.
+      tally().
+      downsample(this.interval).
+      takeWhile(haveItems).
+      subscribe(function () {
+        if (this.nextItems) {
+          this.items = this.nextItems;
+        }
+        this.setClass("");
+      }.bind(this));
+
+    // This sets the magic state before each update
+    this.signals.commit.
+      tally().
+      succ().
+      downsample(this.interval).
+      skip(1).
+      takeWhile(haveItems).
+      subscribe(function () {
+        this.setClass("magic");
+      }.bind(this));
   }
 
   EmitterR.prototype.rollback = function(dir) {
-    delete this.nextState.position;
-    SimpleCell.prototype.rollback.call(this);
-  }
-
-  EmitterR.prototype.commit = function() {
-    if (this.nextState.hasOwnProperty('position')) {
-      this.position = this.nextState.position;
-    }
-    if (this.nextState.hasOwnProperty('items')) {
-      this.items = this.nextState.items;
-    }
-
-    SimpleCell.prototype.commit.call(this);
-
-    if (this.position == 0 && this.items > 0) {
-      this.setClass("magic");
-    } else {
-      this.setClass("");
-    }
+    this.nextItems = undefined;
   }
 
   EmitterR.prototype.render = function(root, svg, size) {
