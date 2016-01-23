@@ -26,6 +26,9 @@
         fill: white;
         stroke: black;
       }
+      svg#palette .selected .grid {
+        fill: #e4e4e4;
+      }
       svg .track {
         fill: yellow;
         stroke: black;
@@ -86,6 +89,7 @@
   </head>
   <body>
     <span id="errors"></span>
+    <svg id="palette" width="350"></svg>
     <svg id="grid" width="500" height="500"></svg>
     <div id="controls">
       <button id="reset">Reset</button>

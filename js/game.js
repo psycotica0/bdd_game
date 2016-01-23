@@ -1,17 +1,11 @@
 requirejs([
-  "rx", "signals", "controls",
-  "cells/horizontal", "cells/empty",
-  "cells/cornerlt", "cells/cornerbl",
-  "cells/cornerrb", "drawingCell",
-  "cells/exclusive4", "cells/cornertr",
+  "rx", "signals", "controls", "palette",
+  "cells/empty", "drawingCell",
   "cells/emitter_r", "cells/sinkr",
   "rx.custom"
   ], function(
-  Rx, signals, controls,
-  HorizontalCell, EmptyCell,
-  CornerLTCell, CornerBLCell,
-  CornerRBCell, DrawingCell,
-  Exclusive4, CornerTRCell,
+  Rx, signals, controls, palette,
+  EmptyCell, DrawingCell,
   EmitterR, SinkR
 ) {
   var svg = document.getElementById("grid");
@@ -23,7 +17,6 @@ requirejs([
       new DrawingCell(x, y, svg, new EmptyCell(signals), signals);
     }
   }
-
 
   DrawingCell.getAt(0,5).populate(new EmitterR(signals));
 
@@ -53,5 +46,5 @@ requirejs([
 
   signals.initial.onNext();
   signals.playControl.onNext("pause");
-  signals.currentCellType.onNext(HorizontalCell);
+  signals.currentCellType.onNext(EmptyCell);
 });

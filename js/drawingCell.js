@@ -18,7 +18,6 @@ define(function() {
     this.backingCell = backingCell;
 
     this.node = svgElem("svg", {x: x * size, y: y * size, width: size, height: size});
-    this.node.appendChild(svgElem("rect", {x:0, y:0, width: size, height: size, class:"grid"}));
     this.populate(backingCell);
 
     signals.initial.subscribe(this.connect.bind(this));
@@ -34,10 +33,10 @@ define(function() {
 
   DrawingCell.prototype.populate = function(newBackingCell) {
     // Clear out the node
-    var oldSvg = this.node.getElementsByTagName("svg");
-    if (oldSvg[0]) {
-      this.node.removeChild(oldSvg[0]);
+    while(this.node.firstChild) {
+      this.node.removeChild(this.node.firstChild);
     }
+    this.node.appendChild(svgElem("rect", {x:0, y:0, width: size, height: size, class:"grid"}));
 
     this.backingCell = newBackingCell;
     this.backingCell.render(this.node, svgElem, size);
