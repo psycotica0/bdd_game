@@ -15,49 +15,17 @@ requirejs([
   EmitterR, SinkR
 ) {
   var svg = document.getElementById("grid");
-  var last;
+  var gridWidth = 10;
+  var gridHeight = 10;
 
-  var meow = [
-    "E4343",
-    "R+++2",
-    "S212E",
-  ]
-
-  for (var y = 0; y < meow.length; y++) {
-    for (var x = 0; x < meow[y].length; x++) {
-      var consructor;
-      switch(meow[y][x]) {
-        case 'E':
-          constructor = EmptyCell;
-          break;
-        case 'H':
-          constructor = HorizontalCell;
-          break;
-        case '1':
-          constructor = CornerTRCell;
-          break;
-        case '2':
-          constructor = CornerLTCell;
-          break;
-        case '3':
-          constructor = CornerBLCell;
-          break;
-        case '4':
-          constructor = CornerRBCell;
-          break;
-        case '+':
-          constructor = Exclusive4;
-          break;
-        case 'R':
-          constructor = EmitterR;
-          break;
-        case 'S':
-          constructor = SinkR;
-          break;
-      }
-      new DrawingCell(x, y, svg, new constructor(signals), signals);
+  for (var y = 0; y < gridHeight; y++) {
+    for (var x = 0; x < gridWidth; x++) {
+      new DrawingCell(x, y, svg, new EmptyCell(signals), signals);
     }
   }
+
+
+  DrawingCell.getAt(0,5).populate(new EmitterR(signals));
 
   {
     var errorSpan = document.getElementById("errors");
@@ -84,5 +52,6 @@ requirejs([
   }
 
   signals.initial.onNext();
-  signals.playControl.onNext("play");
+  signals.playControl.onNext("pause");
+  signals.currentCellType.onNext(HorizontalCell);
 });

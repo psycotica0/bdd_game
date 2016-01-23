@@ -12,20 +12,37 @@ define(function() {
   }
 
   function DrawingCell(x, y, dest, backingCell, signals) {
+    this.signals = signals;
     this.x = x
     this.y = y
     this.backingCell = backingCell;
 
     this.node = svgElem("svg", {x: x * size, y: y * size, width: size, height: size});
-    this.backingCell.render(this.node, svgElem, size);
-    dest.appendChild(this.node);
-
-    this.backingCell.setClass = this.setClass.bind(this);
+    this.node.appendChild(svgElem("rect", {x:0, y:0, width: size, height: size, class:"grid"}));
+    this.populate(backingCell);
 
     signals.initial.subscribe(this.connect.bind(this));
+    Rx.Observable.fromEvent(this.node, "click").
+      withLatestFrom(signals.currentCellType, function(e, cellType) {
+        return cellType;
+      }).subscribe(this.buildBackingCell.bind(this));
+    dest.appendChild(this.node);
 
     registry[x] = registry[x] || {}
     registry[x][y] = this
+  }
+
+  DrawingCell.prototype.populate = function(newBackingCell) {
+    // Clear out the node
+    var oldSvg = this.node.getElementsByTagName("svg");
+    if (oldSvg[0]) {
+      this.node.removeChild(oldSvg[0]);
+    }
+
+    this.backingCell = newBackingCell;
+    this.backingCell.render(this.node, svgElem, size);
+
+    this.backingCell.setClass = this.setClass.bind(this);
   }
 
   DrawingCell.prototype.setClass = function(klass) {
@@ -54,6 +71,11 @@ define(function() {
       this.backingCell.bottom = bottom.backingCell;
       bottom.backingCell.top = this.backingCell;
     }
+  }
+
+  DrawingCell.prototype.buildBackingCell = function(cellType) {
+    this.populate(new cellType(this.signals));
+    this.connect();
   }
 
   DrawingCell.getAt = function(x, y) {

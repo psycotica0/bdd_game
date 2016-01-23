@@ -22,6 +22,10 @@
     </script>
     <script src="node_modules/requirejs/require.js" data-main="game"></script>
     <style>
+      svg .grid {
+        fill: white;
+        stroke: black;
+      }
       svg .track {
         fill: yellow;
         stroke: black;
@@ -82,7 +86,7 @@
   </head>
   <body>
     <span id="errors"></span>
-    <svg id="grid"></svg>
+    <svg id="grid" width="500" height="500"></svg>
     <div id="controls">
       <button id="reset">Reset</button>
       <button id="pause">Pause</button>
