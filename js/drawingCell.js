@@ -1,5 +1,4 @@
-define(function() {
-  var size = 50;
+define(["conf"], function(Conf) {
   // This is to lookup neightbours
   var registry = {};
 
@@ -17,7 +16,7 @@ define(function() {
     this.y = y
     this.backingCell = backingCell;
 
-    this.node = svgElem("svg", {x: x * size, y: y * size, width: size, height: size});
+    this.node = svgElem("svg", {x: x * Conf.cellSize, y: y * Conf.cellSize, width: Conf.cellSize, height: Conf.cellSize});
     this.populate(backingCell);
 
     signals.initial.subscribe(this.connect.bind(this));
@@ -36,10 +35,10 @@ define(function() {
     while(this.node.firstChild) {
       this.node.removeChild(this.node.firstChild);
     }
-    this.node.appendChild(svgElem("rect", {x:0, y:0, width: size, height: size, class:"grid"}));
+    this.node.appendChild(svgElem("rect", {x:0, y:0, width: Conf.cellSize, height: Conf.cellSize, class:"grid"}));
 
     this.backingCell = newBackingCell;
-    this.backingCell.render(this.node, svgElem, size);
+    this.backingCell.render(this.node, svgElem, Conf.cellSize);
 
     this.backingCell.setClass = this.setClass.bind(this);
   }

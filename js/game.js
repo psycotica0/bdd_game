@@ -2,18 +2,21 @@ requirejs([
   "rx", "signals", "controls", "palette",
   "cells/empty", "drawingCell",
   "cells/emitter_r", "cells/sinkr",
+  "conf",
   "rx.custom"
   ], function(
   Rx, signals, controls, palette,
   EmptyCell, DrawingCell,
-  EmitterR, SinkR
+  EmitterR, SinkR,
+  Conf
 ) {
   var svg = document.getElementById("grid");
-  var gridWidth = 10;
-  var gridHeight = 10;
 
-  for (var y = 0; y < gridHeight; y++) {
-    for (var x = 0; x < gridWidth; x++) {
+  svg.setAttribute("width", Conf.cellSize * Conf.gridWidth);
+  svg.setAttribute("height", Conf.cellSize * Conf.gridHeight);
+
+  for (var y = 0; y < Conf.gridHeight; y++) {
+    for (var x = 0; x < Conf.gridWidth; x++) {
       new DrawingCell(x, y, svg, new EmptyCell(signals), signals);
     }
   }
