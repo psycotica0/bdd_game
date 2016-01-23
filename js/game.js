@@ -22,6 +22,7 @@ requirejs([
   }
 
   DrawingCell.getAt(0,5).populate(new EmitterR(signals));
+  DrawingCell.getAt(5,3).populate(new SinkR(signals));
 
   {
     var errorSpan = document.getElementById("errors");
