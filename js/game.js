@@ -17,12 +17,17 @@ requirejs([
 
   for (var y = 0; y < Conf.gridHeight; y++) {
     for (var x = 0; x < Conf.gridWidth; x++) {
-      new DrawingCell(x, y, svg, new EmptyCell(signals), signals);
+      var cell;
+      if (x == 0 && y == 5)
+        cell = new EmitterR(signals);
+      else if (x == 5 && y == 3)
+        cell = new SinkR(signals);
+      else
+        cell = new EmptyCell(signals);
+
+      new DrawingCell(x, y, svg, cell, signals, cell instanceof EmptyCell);
     }
   }
-
-  DrawingCell.getAt(0,5).populate(new EmitterR(signals));
-  DrawingCell.getAt(5,3).populate(new SinkR(signals));
 
   {
     var errorSpan = document.getElementById("errors");

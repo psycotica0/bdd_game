@@ -10,7 +10,7 @@ define(["conf"], function(Conf) {
     return elem;
   }
 
-  function DrawingCell(x, y, dest, backingCell, signals) {
+  function DrawingCell(x, y, dest, backingCell, signals, editable) {
     this.signals = signals;
     this.x = x
     this.y = y
@@ -20,10 +20,12 @@ define(["conf"], function(Conf) {
     this.populate(backingCell);
 
     signals.initial.subscribe(this.connect.bind(this));
-    Rx.Observable.fromEvent(this.node, "click").
-      withLatestFrom(signals.currentCellType, function(e, cellType) {
-        return cellType;
-      }).subscribe(this.buildBackingCell.bind(this));
+    if (editable) {
+      Rx.Observable.fromEvent(this.node, "click").
+        withLatestFrom(signals.currentCellType, function(e, cellType) {
+          return cellType;
+        }).subscribe(this.buildBackingCell.bind(this));
+    }
     dest.appendChild(this.node);
 
     registry[x] = registry[x] || {}
