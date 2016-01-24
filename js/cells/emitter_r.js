@@ -36,6 +36,7 @@ define(["lodash", "dir", "rx", "rx.custom"], function(_, Dir, Rx) {
           this.items = this.nextItems;
         }
         this.setClass("");
+        this.signals.commitDone.onNext();
       }.bind(this));
 
     // This sets the magic state before each update

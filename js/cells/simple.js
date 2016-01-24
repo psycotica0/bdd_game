@@ -103,6 +103,7 @@ define(["lodash", "dir"], function(_, Dir) {
     if (this.setClass) {
       this.setClass(this.content ? "full " + this.content.item : "");
     }
+    this.signals.commitDone.onNext();
   };
 
   SimpleCell.prototype.push = function(dir, item, sender) {

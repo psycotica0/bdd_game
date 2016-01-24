@@ -4,10 +4,12 @@ define(["rx"], function(Rx) {
   var clockSignal = new Rx.Observable.timer(700, 700);
   var stepSignal = new Rx.Subject();
 
+  var commitDoneSignal = new Rx.Subject();
+
   var updateSelector = new Rx.Subject();
   var updateSignal = updateSelector.flatMapLatest(function(value) {
     return (value == "play" ? clockSignal : stepSignal);
-  });
+  }).zip(commitDoneSignal.debounce(100), function(a,b){return a});
 
   var updateDoneSignal = new Rx.Subject();
 
@@ -27,6 +29,7 @@ define(["rx"], function(Rx) {
     resolve: resolveSignal,
     resolveDone: resolveDoneSignal,
     commit: commitSignal,
+    commitDone: commitDoneSignal,
     error: new Rx.Subject(),
     currentCellType: new Rx.Subject(),
     received: received

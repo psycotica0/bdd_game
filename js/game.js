@@ -56,4 +56,7 @@ requirejs([
   signals.initial.onNext();
   signals.playControl.onNext("pause");
   signals.currentCellType.onNext(EmptyCell);
+  // Prime the pump with a first commit done to all the whole thing to get
+  // started
+  signals.commitDone.onNext();
 });

@@ -22,6 +22,7 @@ define(["dir"], function(Dir) {
     }
 
     this.received = false;
+    this.signals.commitDone.onNext();
   }
 
   SinkR.prototype.render = function(root, svg, size) {
