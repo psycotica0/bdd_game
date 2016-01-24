@@ -2,12 +2,12 @@ define(["signals", "conf",
   "cells/horizontal", "cells/empty",
   "cells/cornerlt", "cells/cornerbl",
   "cells/cornerrb", "cells/cornertr", 
-  "cells/exclusive4",
+  "cells/exclusive4", "cells/vertical"
   ], function(signals, Conf,
     HorizontalCell, EmptyCell,
     Corner2, Corner3,
     Corner4, Corner1,
-    Exclusive4
+    Exclusive4, VerticalCell
     ) {
 
   function svgElem (node, attributes) {
@@ -18,7 +18,7 @@ define(["signals", "conf",
     return elem;
   }
 
-  var items = [HorizontalCell, EmptyCell, Corner1, Corner2, Corner3, Corner4, Exclusive4];
+  var items = [HorizontalCell, VerticalCell, EmptyCell, Corner1, Corner2, Corner3, Corner4, Exclusive4];
 
   var mockSignals = {};
   // This builds a set of signals that will never fire to give to palette items
