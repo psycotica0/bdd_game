@@ -32,6 +32,7 @@ define(["rx"], function(Rx) {
     commitDone: commitDoneSignal,
     error: new Rx.Subject(),
     currentCellType: new Rx.Subject(),
+    reset: new Rx.Subject(),
     received: received
   }
 });

@@ -1,54 +1,61 @@
 define(["lodash", "dir", "rx", "rx.custom"], function(_, Dir, Rx) {
   var EmitterR = function(signals) {
     this.signals = signals;
-    this.nextItems = undefined;
-    this.items = ["a", "b", "c", "d", "e", "a", "b", "c", "d", "e"];
-    this.interval = 2;
-
-    // Start off about to emit
-    this.signals.initial.subscribe(function() {
-      this.setClass("magic");
-    }.bind(this));
-
+    this.dispose = [];
     var haveItems = function() {
       return (this.items.length > 0);
     }.bind(this);
 
-    // This fires something out every interval updates, until there are none
-    // left
-    this.signals.update.
-      tally().
-      downsample(this.interval).
-      takeWhile(haveItems).
-      subscribe(function() {
-        this.right.push(Dir.left, _.head(this.items), this);
-        this.nextItems = _.tail(this.items);
-        this.signals.updateDone.onNext();
-      }.bind(this));
+    this.signals.reset.subscribe(function() {
+      this.nextItems = undefined;
+      this.items = ["a", "b", "c", "d", "e", "a", "b", "c", "d", "e"];
+      this.interval = 2;
 
-    // This commits the changes and clears the magic state
-    this.signals.commit.
-      tally().
-      downsample(this.interval).
-      takeWhile(haveItems).
-      subscribe(function () {
-        if (this.nextItems) {
-          this.items = this.nextItems;
-        }
-        this.setClass("");
-        this.signals.commitDone.onNext();
-      }.bind(this));
+      // Start off about to emit
+      this.setClass("magic");
 
-    // This sets the magic state before each update
-    this.signals.commit.
-      tally().
-      succ().
-      downsample(this.interval).
-      skip(1).
-      takeWhile(haveItems).
-      subscribe(function () {
-        this.setClass("magic");
-      }.bind(this));
+      // Dispose of old signals
+      this.dispose.forEach(function(s) {
+        s.dispose();
+      });
+      this.dispose = [];
+
+      // This fires something out every interval updates, until there are none
+      // left
+      this.dispose.push(this.signals.update.
+        tally().
+        downsample(this.interval).
+        takeWhile(haveItems).
+        subscribe(function() {
+          this.right.push(Dir.left, _.head(this.items), this);
+          this.nextItems = _.tail(this.items);
+          this.signals.updateDone.onNext();
+        }.bind(this)));
+
+      // This commits the changes and clears the magic state
+      this.dispose.push(this.signals.commit.
+        tally().
+        downsample(this.interval).
+        takeWhile(haveItems).
+        subscribe(function () {
+          if (this.nextItems) {
+            this.items = this.nextItems;
+          }
+          this.setClass("");
+          this.signals.commitDone.onNext();
+        }.bind(this)));
+
+      // This sets the magic state before each update
+      this.dispose.push(this.signals.commit.
+        tally().
+        succ().
+        downsample(this.interval).
+        skip(1).
+        takeWhile(haveItems).
+        subscribe(function () {
+          this.setClass("magic");
+        }.bind(this)));
+    }.bind(this));
   }
 
   EmitterR.prototype.rollback = function(dir) {

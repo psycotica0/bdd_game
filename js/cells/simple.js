@@ -7,6 +7,7 @@ define(["lodash", "dir"], function(_, Dir) {
     this.signals.update.subscribe(this.update.bind(this));
     this.signals.resolve.subscribe(this.resolve.bind(this));
     this.signals.commit.subscribe(this.commit.bind(this));
+    this.signals.reset.subscribe(this.reset.bind(this));
   };
 
   SimpleCell.prototype.jasmineToString = function() {
@@ -105,6 +106,13 @@ define(["lodash", "dir"], function(_, Dir) {
     }
     this.signals.commitDone.onNext();
   };
+
+  SimpleCell.prototype.reset = function() {
+    this.nextState = {};
+    this.content = undefined;
+    if (this.setClass)
+      this.setClass("");
+  }
 
   SimpleCell.prototype.push = function(dir, item, sender) {
     this.nextState.inbound = this.nextState.inbound || [];

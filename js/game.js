@@ -31,29 +31,41 @@ requirejs([
 
   {
     var errorSpan = document.getElementById("errors");
-    signals.initial.subscribe(function() {
+    var errorTally;
+    signals.reset.subscribe(function() {
       errorSpan.textContent = "";
     });
-    signals.error.tally().succ().subscribe(function(errorCount) {
-      errorSpan.textContent = errorCount;
+    signals.reset.subscribe(function() {
+      if (errorTally)
+        errorTally.dispose();
+      errorTally = signals.error.tally().succ().subscribe(function(errorCount) {
+        errorSpan.textContent = errorCount;
+      });
     });
   }
 
   {
     var task = document.getElementById("task1");
     var successSpan = document.querySelector("#task1 .progress");
-    signals.initial.subscribe(function() {
+    var successTally;
+    signals.reset.subscribe(function() {
       successSpan.textContent = "0";
     });
-    signals.received.tally().succ().subscribe(function(successCount) {
-      successSpan.textContent = successCount;
-      if (successCount == 10) {
-        task.setAttribute("class", "complete");
-      }
+    signals.reset.subscribe(function() {
+      task.setAttribute("class", "");
+      if (successTally)
+        successTally.dispose();
+      successTally = signals.received.tally().succ().subscribe(function(successCount) {
+        successSpan.textContent = successCount;
+        if (successCount == 10) {
+          task.setAttribute("class", "complete");
+        }
+      });
     });
   }
 
   signals.initial.onNext();
+  signals.reset.onNext();
   signals.playControl.onNext("pause");
   signals.currentCellType.onNext(EmptyCell);
   // Prime the pump with a first commit done to all the whole thing to get

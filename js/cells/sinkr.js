@@ -2,6 +2,9 @@ define(["dir"], function(Dir) {
   var SinkR = function(signals) {
     this.signals = signals;
     this.signals.commit.subscribe(this.commit.bind(this));
+    this.signals.reset.subscribe(function() {
+      this.setClass("");
+    }.bind(this));
     this.received = undefined;
   }
 

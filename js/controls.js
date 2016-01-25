@@ -1,6 +1,6 @@
 define(["signals"], function(Signals) {
   function resetClicked() {
-    console.log("Reset");
+    Signals.reset.onNext();
   }
   function pauseClicked() {
     Signals.playControl.onNext("pause");
