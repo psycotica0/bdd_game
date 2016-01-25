@@ -9,7 +9,7 @@ define(["rx"], function(Rx) {
   var updateSelector = new Rx.Subject();
   var updateSignal = updateSelector.flatMapLatest(function(value) {
     return (value == "play" ? clockSignal : stepSignal);
-  }).zip(commitDoneSignal.debounce(100), function(a,b){return a});
+  }).zip(commitDoneSignal.debounce(100), function(a,b){return a}).share();
 
   var updateDoneSignal = new Rx.Subject();
 
