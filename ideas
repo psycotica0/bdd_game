@@ -1,0 +1,19 @@
+- Combiner to combine elements
+- Filter pieces to put certain kind of input one direction, and another in another
+- Periodic Wall
+- Decay. Certain items might need to be out in the air for some time to "ripen"
+  before being consumed.
+
+- Inducer. Straight piece, but it "teleports" a copy of the piece that goes
+  through it to the piece above, even though they don't touch.
+
+  Like =~=
+       ===
+  If '=' is a normal piece, and ~ is my inducer, when an item enters the
+  inducer from the left, the piece below it "magically" gets one entering from
+  the left too
+
+- Maybe some semaphore, so when an item goes over a spot it opens a gate
+  elsewhere for flow control
+
+- Spreader: if 3 pieces went in, each would come out in a different direction
