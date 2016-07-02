@@ -23,9 +23,9 @@ requirejs([
       else if (x == 0 && y == 3)
         cell = new EmitterR(signals, "b");
       else if (x == 0 && y == 2)
-        cell = new SinkR(signals, "a");
+        cell = new SinkR(signals, "a", "a");
       else if (x == 0 && y == 8)
-        cell = new SinkR(signals, "b");
+        cell = new SinkR(signals, "b", "b");
       else
         cell = new EmptyCell(signals);
 
@@ -48,9 +48,9 @@ requirejs([
     });
   }
 
-  {
-    var task = document.getElementById("task1");
-    var successSpan = document.querySelector("#task1 .progress");
+  function simpleTask(id, item) {
+    var task = document.getElementById(id);
+    var successSpan = task.querySelector(".progress");
     var successTally;
     signals.reset.subscribe(function() {
       successSpan.textContent = "0";
@@ -59,7 +59,9 @@ requirejs([
       task.setAttribute("class", "");
       if (successTally)
         successTally.dispose();
-      successTally = signals.received.tally().succ().subscribe(function(successCount) {
+      successTally = signals.received
+        .filter(_.partial(_.isEqual, item))
+        .tally().succ().subscribe(function(successCount) {
         successSpan.textContent = successCount;
         if (successCount == 10) {
           task.setAttribute("class", "complete");
@@ -67,6 +69,9 @@ requirejs([
       });
     });
   }
+
+  simpleTask("task1", "a");
+  simpleTask("task2", "b");
 
   signals.initial.onNext();
   signals.reset.onNext();

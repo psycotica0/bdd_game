@@ -1,7 +1,8 @@
 define(["dir"], function(Dir) {
-  var SinkR = function(signals, item) {
+  var SinkR = function(signals, item, identifier) {
     this.signals = signals;
-    this.item = item
+    this.item = item;
+    this.identifier = identifier;
     this.signals.resolve.subscribe(this.resolve.bind(this));
     this.signals.commit.subscribe(this.commit.bind(this));
     this.signals.reset.subscribe(function() {
@@ -31,7 +32,7 @@ define(["dir"], function(Dir) {
   SinkR.prototype.commit = function() {
     if (this.received) {
       this.setClass("magic");
-      this.signals.received.onNext();
+      this.signals.received.onNext(this.identifier);
     } else {
       this.setClass("");
     }
