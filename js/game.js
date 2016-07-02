@@ -2,30 +2,36 @@ requirejs([
   "rx", "signals", "controls", "palette",
   "cells/empty", "drawingCell",
   "cells/emitter_r", "cells/sinkr",
-  "conf",
+  "conf", "task",
   "rx.custom"
   ], function(
   Rx, signals, controls, palette,
   EmptyCell, DrawingCell,
   EmitterR, SinkR,
-  Conf
+  Conf, SimpleTask
 ) {
   var svg = document.getElementById("grid");
 
   svg.setAttribute("width", Conf.cellSize * Conf.gridWidth);
   svg.setAttribute("height", Conf.cellSize * Conf.gridHeight);
 
+  var emit1 = new EmitterR(signals, "a");
+  var emit2 = new EmitterR(signals, "b");
+
+  var sink1 = new SinkR(signals, "a", "a");
+  var sink2 = new SinkR(signals, "b", "b");
+
   for (var y = 0; y < Conf.gridHeight; y++) {
     for (var x = 0; x < Conf.gridWidth; x++) {
       var cell;
       if (x == 0 && y == 5)
-        cell = new EmitterR(signals, "a");
+        cell = emit1
       else if (x == 0 && y == 3)
-        cell = new EmitterR(signals, "b");
+        cell = emit2
       else if (x == 0 && y == 2)
-        cell = new SinkR(signals, "a", "a");
+        cell = sink1
       else if (x == 0 && y == 8)
-        cell = new SinkR(signals, "b", "b");
+        cell = sink2
       else
         cell = new EmptyCell(signals);
 
@@ -48,31 +54,27 @@ requirejs([
     });
   }
 
-  function simpleTask(id, item) {
-    var task = document.getElementById(id);
-    var successSpan = task.querySelector(".progress");
-    var successTally;
-    signals.reset.subscribe(function() {
-      successSpan.textContent = "0";
-    });
-    signals.reset.subscribe(function() {
-      task.setAttribute("class", "");
-      if (successTally)
-        successTally.dispose();
-      successTally = signals.received
-        .filter(_.partial(_.isEqual, item))
-        .tally().succ().subscribe(function(successCount) {
-        successSpan.textContent = successCount;
-        if (successCount == 10) {
-          task.setAttribute("class", "complete");
-        }
-      });
-    });
-  }
+  signals.level.subscribe(function(n) {
+    emit1.active = n > 0;
+    emit2.active = n > 1;
+  });
 
-  simpleTask("task1", "a");
-  simpleTask("task2", "b");
+  var tasks = [
+    SimpleTask(
+      document.getElementById("task1"),
+      "a",
+      signals,
+      1
+    ),
+    SimpleTask(
+      document.getElementById("task2"),
+      "b",
+      signals,
+      2
+    )
+  ];
 
+  signals.level.onNext(1);
   signals.initial.onNext();
   signals.reset.onNext();
   signals.playControl.onNext("pause");

@@ -24,6 +24,7 @@ define(["rx"], function(Rx) {
     initial: initialSignal,
     playControl: updateSelector,
     step: stepSignal,
+    level: new Rx.Subject(),
     update: updateSignal,
     updateDone: updateDoneSignal,
     resolve: resolveSignal,

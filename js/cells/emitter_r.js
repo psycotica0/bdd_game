@@ -13,13 +13,20 @@ define(["lodash", "dir", "rx", "rx.custom"], function(_, Dir, Rx) {
       this.interval = 2;
 
       // Start off about to emit
-      this.setClass("magic full " + this.item);
+      if (this.active)
+        this.setClass("magic full " + this.item);
+      else
+        this.setClass("");
 
       // Dispose of old signals
       this.dispose.forEach(function(s) {
         s.dispose();
       });
       this.dispose = [];
+
+      // If we're not active, don't subscribe to any of these
+      if (!this.active)
+        return;
 
       // This fires something out every interval updates, until there are none
       // left
