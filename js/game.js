@@ -19,9 +19,13 @@ requirejs([
     for (var x = 0; x < Conf.gridWidth; x++) {
       var cell;
       if (x == 0 && y == 5)
-        cell = new EmitterR(signals);
-      else if (x == 5 && y == 3)
-        cell = new SinkR(signals);
+        cell = new EmitterR(signals, "a");
+      else if (x == 0 && y == 3)
+        cell = new EmitterR(signals, "b");
+      else if (x == 0 && y == 2)
+        cell = new SinkR(signals, "a");
+      else if (x == 0 && y == 8)
+        cell = new SinkR(signals, "b");
       else
         cell = new EmptyCell(signals);
 

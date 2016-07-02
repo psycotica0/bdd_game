@@ -1,6 +1,7 @@
 define(["lodash", "dir", "rx", "rx.custom"], function(_, Dir, Rx) {
-  var EmitterR = function(signals) {
+  var EmitterR = function(signals, item) {
     this.signals = signals;
+    this.item = item
     this.dispose = [];
     var haveItems = function() {
       return (this.items.length > 0);
@@ -8,11 +9,11 @@ define(["lodash", "dir", "rx", "rx.custom"], function(_, Dir, Rx) {
 
     this.signals.reset.subscribe(function() {
       this.nextItems = undefined;
-      this.items = ["a", "b", "c", "d", "e", "a", "b", "c", "d", "e"];
+      this.items = _.times(10, _.constant(this.item))
       this.interval = 2;
 
       // Start off about to emit
-      this.setClass("magic");
+      this.setClass("magic full " + this.item);
 
       // Dispose of old signals
       this.dispose.forEach(function(s) {

@@ -1,9 +1,11 @@
 define(["dir"], function(Dir) {
-  var SinkR = function(signals) {
+  var SinkR = function(signals, item) {
     this.signals = signals;
+    this.item = item
+    this.signals.resolve.subscribe(this.resolve.bind(this));
     this.signals.commit.subscribe(this.commit.bind(this));
     this.signals.reset.subscribe(function() {
-      this.setClass("");
+      this.setClass("full " + item);
     }.bind(this));
     this.received = undefined;
   }
@@ -14,6 +16,16 @@ define(["dir"], function(Dir) {
     } else {
       this.signals.error.onNext();
     }
+  }
+
+  SinkR.prototype.resolve = function() {
+      if (this.received && this.received != this.item) {
+        // We've gotten an item we didn't want
+        this.received = false;
+        this.signals.error.onNext();
+      }
+
+      this.signals.resolveDone.onNext()
   }
 
   SinkR.prototype.commit = function() {
@@ -38,7 +50,7 @@ define(["dir"], function(Dir) {
     ];
 
     root.appendChild(svg("path", {d: dSrc.map(function(i){return i.join(" ")}).join(" "), class: "track"}));
-    root.appendChild(svg("circle", {cx: size * 4 / 6, cy: size * 4 / 6, r: size/6, class: "box"}));
+    root.appendChild(svg("circle", {cx: size * 3 / 6, cy: size * 3 / 6, r: size/6, class: "box"}));
   }
 
   return SinkR;
