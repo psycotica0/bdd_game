@@ -42,7 +42,9 @@ requirejs([
   // Error Count Display
   // Clear on reset, count after that.
   signals.reset.flatMapLatest(function() {
-    return signals.error.tally(1).startWith("");
+    return signals.error.tallyStart();
+  }).map(function(errorCount) {
+    return errorCount == 0 ? "" : errorCount;
   }).subscribe(function(errorCount) {
     document.getElementById("errors").textContent = errorCount;
   });
@@ -58,7 +60,7 @@ requirejs([
     });
 
     var countSignal = signals.reset.flatMapLatest(function() {
-      return signals.taskCompleted.tally(1).startWith(0);
+      return signals.taskCompleted.tallyStart();
     });
 
     countSignal.subscribe(function (taskCount) {

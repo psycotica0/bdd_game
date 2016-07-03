@@ -14,7 +14,7 @@ define(["lodash", "rx"], function(_, Rx) {
       // Count items received that we care about
       return signals.received
         .filter(_.partial(_.isEqual, item))
-        .tally(1).startWith(0);
+        .tallyStart();
     });
 
     countSignal.subscribe(function(successCount) {
