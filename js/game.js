@@ -39,6 +39,32 @@ requirejs([
     }
   }
 
+  var successScreen = document.getElementById("youDidItContainer");
+  {
+    // Move the You Did It Screen to the front
+    svg.appendChild(successScreen);
+
+    var animation = Rx.Observable.fromEvent(successScreen, "animationend");
+
+    // Fade out is done, so hide the element so we can play
+    animation.filter(
+      _.matches({animationName: "fadeOut"})
+    ).subscribe(function(e) {
+      successScreen.setAttribute("class", "");
+    })
+
+    // Fade in is done, so wait a bit before setting hide
+    animation.filter(
+      _.matches({animationName: "fadeIn"})
+    ).flatMapLatest(function(e) {
+      return Rx.Observable.just().delay(2000);
+    }).subscribe(function() {
+      // Reset the level just before hiding
+      signals.reset.onNext();
+      successScreen.setAttribute("class", "hide");
+    });
+  }
+
   // Error Count Display
   // Clear on reset, count after that.
   signals.reset.flatMapLatest(function() {
@@ -63,10 +89,9 @@ requirejs([
 
     countSignal.combineLatest(signals.level).subscribe(_.spread(function(taskCount, taskTotal) {
       if (taskCount >= taskTotal) {
-        console.log("You did it!");
         signals.playControl.onNext("pause");
         signals.level.onNext(taskTotal + 1);
-        signals.reset.onNext();
+        successScreen.setAttribute("class", "display");
       }
     }));
   }
