@@ -39,20 +39,13 @@ requirejs([
     }
   }
 
-  {
-    var errorSpan = document.getElementById("errors");
-    var errorTally;
-    signals.reset.subscribe(function() {
-      errorSpan.textContent = "";
-    });
-    signals.reset.subscribe(function() {
-      if (errorTally)
-        errorTally.dispose();
-      errorTally = signals.error.tally().succ().subscribe(function(errorCount) {
-        errorSpan.textContent = errorCount;
-      });
-    });
-  }
+  // Error Count Display
+  // Clear on reset, count after that.
+  signals.reset.flatMapLatest(function() {
+    return signals.error.tally().succ().startWith("");
+  }).subscribe(function(errorCount) {
+    document.getElementById("errors").textContent = errorCount;
+  });
 
   signals.level.subscribe(function(n) {
     emit1.active = n > 0;
@@ -60,31 +53,26 @@ requirejs([
   });
 
   {
-    var taskProgress = document.querySelector("#taskHeader .progress");
-    var taskTotal = document.querySelector("#taskHeader .total");
-
     signals.level.subscribe(function(n) {
-      taskTotal.textContent = n;
+      document.querySelector("#taskHeader .total").textContent = n;
     });
 
-    var taskDisposable;
-    var snd = function(a,b){return b};
-    signals.reset.combineLatest(signals.level, snd).subscribe(function(level) {
-      taskProgress.textContent = "0";
-
-      if (taskDisposable)
-        taskDisposable.dispose();
-
-      taskDisposable = signals.taskCompleted.tally().succ().subscribe(function(taskCount) {
-        taskProgress.textContent = taskCount;
-
-        if (taskCount >= level) {
-          signals.playControl.onNext("pause");
-          signals.level.onNext(level + 1);
-          signals.reset.onNext();
-        }
-      });
+    var countSignal = signals.reset.flatMapLatest(function() {
+      return signals.taskCompleted.tally().succ().startWith(0);
     });
+
+    countSignal.subscribe(function (taskCount) {
+      document.querySelector("#taskHeader .progress").textContent = taskCount;
+    });
+
+    countSignal.combineLatest(signals.level).subscribe(_.spread(function(taskCount, taskTotal) {
+      if (taskCount >= taskTotal) {
+        console.log("You did it!");
+        signals.playControl.onNext("pause");
+        signals.level.onNext(taskTotal + 1);
+        signals.reset.onNext();
+      }
+    }));
   }
 
   var tasks = [
