@@ -59,6 +59,34 @@ requirejs([
     emit2.active = n > 1;
   });
 
+  {
+    var taskProgress = document.querySelector("#taskHeader .progress");
+    var taskTotal = document.querySelector("#taskHeader .total");
+
+    signals.level.subscribe(function(n) {
+      taskTotal.textContent = n;
+    });
+
+    var taskDisposable;
+    var snd = function(a,b){return b};
+    signals.reset.combineLatest(signals.level, snd).subscribe(function(level) {
+      taskProgress.textContent = "0";
+
+      if (taskDisposable)
+        taskDisposable.dispose();
+
+      taskDisposable = signals.taskCompleted.tally().succ().subscribe(function(taskCount) {
+        taskProgress.textContent = taskCount;
+
+        if (taskCount >= level) {
+          signals.playControl.onNext("pause");
+          signals.level.onNext(level + 1);
+          signals.reset.onNext();
+        }
+      });
+    });
+  }
+
   var tasks = [
     SimpleTask(
       document.getElementById("task1"),

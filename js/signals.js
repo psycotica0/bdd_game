@@ -34,6 +34,7 @@ define(["rx"], function(Rx) {
     error: new Rx.Subject(),
     currentCellType: new Rx.Subject(),
     reset: new Rx.Subject(),
+    taskCompleted: new Rx.Subject(),
     received: received
   }
 });

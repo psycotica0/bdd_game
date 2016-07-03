@@ -27,6 +27,7 @@ define(["lodash", "rx"], function(_, Rx) {
             successSpan.textContent = successCount;
             if (successCount == 10) {
               domEntity.setAttribute("class", "complete");
+              signals.taskCompleted.onNext();
             }
           });
       }
