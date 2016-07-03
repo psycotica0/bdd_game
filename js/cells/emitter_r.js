@@ -55,8 +55,7 @@ define(["lodash", "dir", "rx", "rx.custom"], function(_, Dir, Rx) {
 
       // This sets the magic state before each update
       this.dispose.push(this.signals.commit.
-        tally().
-        succ().
+        tally(1).
         downsample(this.interval).
         skip(1).
         takeWhile(haveItems).

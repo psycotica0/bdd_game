@@ -5,13 +5,10 @@ define(["rx"], function(Rx) {
       }).distinctUntilChanged();
   }
 
-  Rx.Observable.prototype.tally = function() {
+  Rx.Observable.prototype.tally = function(start) {
+    start = start || 0;
     return this.scan(function(acc) {
       return acc + 1;
-    }, -1);
-  }
-
-  Rx.Observable.prototype.succ = function() {
-    return this.map(function(n) {return n+1;});
+    }, start - 1);
   }
 });
