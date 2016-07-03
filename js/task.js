@@ -24,9 +24,7 @@ define(["lodash", "rx"], function(_, Rx) {
       }
     });
 
-    countSignal.subscribe(function(successCount) {
-      domEntity.querySelector(".progress").textContent = successCount;
-    });
+    countSignal.publishInto(domEntity.querySelector(".progress"));
   }
 
   return SimpleTask;

@@ -18,4 +18,12 @@ define(["rx"], function(Rx) {
     start = start || 0;
     return this.tally(start + 1).startWith(start);
   }
+
+  // This function subscribes to the stream and puts the result in the passed
+  // in entity
+  Rx.Observable.prototype.publishInto = function(domEntity) {
+    return this.subscribe(function(value) {
+      domEntity.textContent = value;
+    });
+  }
 });

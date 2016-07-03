@@ -45,9 +45,7 @@ requirejs([
     return signals.error.tallyStart();
   }).map(function(errorCount) {
     return errorCount == 0 ? "" : errorCount;
-  }).subscribe(function(errorCount) {
-    document.getElementById("errors").textContent = errorCount;
-  });
+  }).publishInto(document.getElementById("errors"));
 
   signals.level.subscribe(function(n) {
     emit1.active = n > 0;
@@ -55,17 +53,13 @@ requirejs([
   });
 
   {
-    signals.level.subscribe(function(n) {
-      document.querySelector("#taskHeader .total").textContent = n;
-    });
+    signals.level.publishInto(document.querySelector("#taskHeader .total"));
 
     var countSignal = signals.reset.flatMapLatest(function() {
       return signals.taskCompleted.tallyStart();
     });
 
-    countSignal.subscribe(function (taskCount) {
-      document.querySelector("#taskHeader .progress").textContent = taskCount;
-    });
+    countSignal.publishInto(document.querySelector("#taskHeader .progress"));
 
     countSignal.combineLatest(signals.level).subscribe(_.spread(function(taskCount, taskTotal) {
       if (taskCount >= taskTotal) {
