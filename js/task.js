@@ -6,7 +6,7 @@ define(["lodash", "rx"], function(_, Rx) {
 
     var snd = function(a,b) {return b};
 
-    signals.reset.combineLatest(activeSignal, snd).doOnNext(function(active) {
+    var countSignal = signals.reset.combineLatest(activeSignal, snd).doOnNext(function(active) {
       domEntity.setAttribute("class",
         active ? "" : "inactive"
       );
@@ -15,12 +15,16 @@ define(["lodash", "rx"], function(_, Rx) {
       return signals.received
         .filter(_.partial(_.isEqual, item))
         .tally().succ().startWith(0);
-    }).doOnNext(function(successCount) {
+    });
+
+    countSignal.subscribe(function(successCount) {
       if (successCount == 10) {
         domEntity.setAttribute("class", "complete");
         signals.taskCompleted.onNext();
       }
-    }).subscribe(function(successCount) {
+    });
+
+    countSignal.subscribe(function(successCount) {
       domEntity.querySelector(".progress").textContent = successCount;
     });
   }
