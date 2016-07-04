@@ -1,4 +1,4 @@
-define(["rx"], function(Rx) {
+define(["rx", "rx.custom"], function(Rx) {
   var initialSignal = new Rx.Subject();
 
   var clockSignal = new Rx.Observable.timer(700, 700);
@@ -9,7 +9,7 @@ define(["rx"], function(Rx) {
   var updateSelector = new Rx.Subject();
   var updateSignal = updateSelector.flatMapLatest(function(value) {
     return (value == "play" ? clockSignal : stepSignal);
-  }).zip(commitDoneSignal.debounce(100), function(a,b){return a}).share();
+  }).zipLatest(commitDoneSignal.debounce(100), function(a,b){return a}).share();
 
   var updateDoneSignal = new Rx.Subject();
 
